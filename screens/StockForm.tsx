@@ -50,7 +50,7 @@ export default function StockForm({ route, navigation }: Props) {
           image: imageUri,
           tags: tags
             .split(',')
-            .map((t) => t.trim())
+            .map((t: string) => t.trim())
             .filter(Boolean),
         });
       } else {
@@ -62,7 +62,7 @@ export default function StockForm({ route, navigation }: Props) {
           imageUri,
           tags: tags
             .split(',')
-            .map((t) => t.trim())
+            .map((t: string) => t.trim())
             .filter(Boolean),
         });
       }
