@@ -10,6 +10,7 @@ export default function Shelves({ navigation }: Props) {
     <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
       <Text>Shelves Screen</Text>
       <Button title="Go to Stocks" onPress={() => navigation.navigate('Stocks')} />
+      <Button title="Search" onPress={() => navigation.navigate('Search')} />
     </View>
   );
 }
