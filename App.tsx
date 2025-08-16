@@ -36,7 +36,7 @@ const linking = {
       Stocks: 'stock/:id',
       NfcWriter: 'writer',
       NfcHistory: 'history',
-      // 必要なら他画面もここに追加してOK
+      // 必要に応じて他画面も追加可
     },
   },
 };

@@ -11,7 +11,6 @@ import {
   Share,
 } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-
 import { RootStackParamList /*, Stock */ } from '../types';
 import { useStocks } from '../StockContext';
 
@@ -22,7 +21,7 @@ import { canUpload, ensurePlantImagesBucket } from '../lib/storage';
 type Props = NativeStackScreenProps<RootStackParamList, 'Stocks'>;
 
 export default function Stocks({ navigation, route }: Props) {
-  // Deep Link (agrow://stock/:id) から渡ってくる可能性のあるID（未設定なら undefined）
+  // Deep Link (agrow://stock/:id) から来る可能性のあるID
   const deepLinkedId = (route.params as any)?.id as string | undefined;
 
   // 在庫一覧（parent_id=null のルートのみ）
@@ -69,7 +68,6 @@ export default function Stocks({ navigation, route }: Props) {
       // EXIF から撮影日時を推測（なければ現在時刻）
       const exifDate = (asset.exif as any)?.DateTimeOriginal;
       if (exifDate) {
-        // "YYYY:MM:DD HH:mm:ss" → ISO へ変換（簡易）
         const parsed = new Date(exifDate.replace(/:/g, '-').replace(' ', 'T'));
         setShotAt(parsed.toISOString());
       } else {
