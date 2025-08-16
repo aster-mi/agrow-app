@@ -6,11 +6,16 @@ import Login from './screens/Login';
 import Shelves from './screens/Shelves';
 import Stocks from './screens/Stocks';
 import { RootStackParamList } from './types';
+import { useEffect } from 'react';
+import { initSyncService } from './syncService';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export default function App() {
   const scheme = useColorScheme();
+  useEffect(() => {
+    initSyncService();
+  }, []);
   return (
     <NavigationContainer theme={scheme === 'dark' ? DarkTheme : DefaultTheme}>
       <Stack.Navigator initialRouteName="Login">
