@@ -1,3 +1,4 @@
+import 'react-native-reanimated';
 import React, { useEffect } from 'react';
 import { useColorScheme } from 'react-native';
 import * as Linking from 'expo-linking';
