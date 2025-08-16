@@ -6,6 +6,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import Login from './screens/Login';
 import Shelves from './screens/Shelves';
 import Stocks from './screens/Stocks';
+import Timeline from './screens/Timeline';
 import StockDetail from './screens/StockDetail';
 import StockForm from './screens/StockForm';
 import ParentSelect from './screens/ParentSelect';
@@ -26,6 +27,7 @@ export default function App() {
           <Stack.Screen name="Login" component={Login} />
           <Stack.Screen name="Shelves" component={Shelves} />
           <Stack.Screen name="Stocks" component={Stocks} />
+          <Stack.Screen name="Timeline" component={Timeline} />
           <Stack.Screen name="StockDetail" component={StockDetail} />
           <Stack.Screen name="StockForm" component={StockForm} />
           <Stack.Screen name="ParentSelect" component={ParentSelect} />
