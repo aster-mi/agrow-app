@@ -9,7 +9,9 @@ export interface Stock {
 export type RootStackParamList = {
   Login: undefined;
   Shelves: undefined;
-  Stocks: undefined;
+
+  // Deep Link (agrow://stock/:id) で id を受け取れるよう任意化
+  Stocks: { id?: string } | undefined;
 
   // 編集 or 新規追加の両方に対応
   // - 新規: { parentId?: number }
@@ -24,4 +26,8 @@ export type RootStackParamList = {
   StockDetail: { id: number };
   ParentSelect: { stockId: number };
   ImageDetail: { imageId: string };
+
+  // NFC
+  NfcWriter: undefined;
+  NfcHistory: undefined;
 };

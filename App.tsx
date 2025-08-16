@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { useColorScheme } from 'react-native';
+import * as Linking from 'expo-linking';
 import { NavigationContainer, DarkTheme, DefaultTheme } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
@@ -15,23 +16,58 @@ import StockDetail from './screens/StockDetail';
 import StockForm from './screens/StockForm';
 import ParentSelect from './screens/ParentSelect';
 import ImageDetail from './screens/ImageDetail';
+import NfcWriter from './screens/NfcWriter';
+import NfcHistory from './screens/NfcHistory';
 
 import { RootStackParamList } from './types';
 import { StockProvider } from './StockContext';
 import { initSyncService } from './syncService';
+import { addHistory } from './utils/nfcHistory';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
+
+const linking = {
+  prefixes: ['agrow://'],
+  config: {
+    screens: {
+      Login: 'login',
+      Shelves: 'shelves',
+      // 例: agrow://stock/123
+      Stocks: 'stock/:id',
+      NfcWriter: 'writer',
+      NfcHistory: 'history',
+      // 必要なら他画面もここに追加してOK
+    },
+  },
+};
 
 export default function App() {
   const scheme = useColorScheme();
 
   useEffect(() => {
+    // 同期サービス初期化
     initSyncService();
+
+    // Deep Linkで stock/:id が来たら履歴追加
+    const handleUrl = ({ url }: { url: string }) => {
+      const parsed = Linking.parse(url);
+      if (parsed.path?.startsWith('stock/')) {
+        const id = parsed.path.replace('stock/', '');
+        if (id) addHistory(id);
+      }
+    };
+
+    // cold start 時のURL処理
+    Linking.getInitialURL().then((url) => url && handleUrl({ url }));
+
+    // フォアグラウンドでのURL処理
+    const sub = Linking.addEventListener('url', handleUrl);
+    return () => sub.remove();
   }, []);
 
   return (
     <StockProvider>
-      <NavigationContainer theme={scheme === 'dark' ? DarkTheme : DefaultTheme}>
+      <NavigationContainer linking={linking} theme={scheme === 'dark' ? DarkTheme : DefaultTheme}>
         <Stack.Navigator initialRouteName="Login">
           <Stack.Screen name="Login" component={Login} />
           <Stack.Screen name="Shelves" component={Shelves} />
@@ -45,6 +81,8 @@ export default function App() {
           <Stack.Screen name="StockForm" component={StockForm} />
           <Stack.Screen name="ParentSelect" component={ParentSelect} />
           <Stack.Screen name="ImageDetail" component={ImageDetail} />
+          <Stack.Screen name="NfcWriter" component={NfcWriter} />
+          <Stack.Screen name="NfcHistory" component={NfcHistory} />
         </Stack.Navigator>
       </NavigationContainer>
     </StockProvider>

@@ -21,19 +21,21 @@ import { canUpload, ensurePlantImagesBucket } from '../lib/storage';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Stocks'>;
 
-export default function Stocks({ navigation }: Props) {
-  // --- 在庫一覧（parent_id=null のルートのみ）
+export default function Stocks({ navigation, route }: Props) {
+  // Deep Link (agrow://stock/:id) から渡ってくる可能性のあるID（未設定なら undefined）
+  const deepLinkedId = (route.params as any)?.id as string | undefined;
+
+  // 在庫一覧（parent_id=null のルートのみ）
   const { stocks } = useStocks();
   const roots = stocks.filter((s: any) => s.parent_id === null);
 
-  // --- 画像アップロード UI
+  // 画像アップロード UI
   const [image, setImage] = useState<ImagePicker.ImagePickerAsset | null>(null);
   const [shotAt, setShotAt] = useState('');
   const [memo, setMemo] = useState('');
 
-  // --- 共有（サンプル）
+  // 共有（サンプル）
   const shareStock = async (stock: { id: string | number; name: string; image?: string; isPublic?: boolean }) => {
-    // 公開・非公開で共有内容を切替（image/url の扱いは仮）
     if (stock.isPublic) {
       await Share.share({
         message: `Check my stock ${stock.name}: https://example.com/stocks/${stock.id}`,
@@ -67,7 +69,7 @@ export default function Stocks({ navigation }: Props) {
       // EXIF から撮影日時を推測（なければ現在時刻）
       const exifDate = (asset.exif as any)?.DateTimeOriginal;
       if (exifDate) {
-        // "YYYY:MM:DD HH:mm:ss" → ISO へ荒変換
+        // "YYYY:MM:DD HH:mm:ss" → ISO へ変換（簡易）
         const parsed = new Date(exifDate.replace(/:/g, '-').replace(' ', 'T'));
         setShotAt(parsed.toISOString());
       } else {
@@ -108,7 +110,6 @@ export default function Stocks({ navigation }: Props) {
       const { error: uploadError } = await supabase.storage
         .from(PLANT_IMAGES_BUCKET)
         .upload(filePath, blob);
-
       if (uploadError) throw uploadError;
 
       const { error: insertErr } = await supabase.from('images').insert({
@@ -130,15 +131,20 @@ export default function Stocks({ navigation }: Props) {
 
   return (
     <View style={{ flex: 1, padding: 16, gap: 16 }}>
+      {/* Deep Link で来たIDの表示（あれば） */}
+      {deepLinkedId && (
+        <View style={{ padding: 8, borderWidth: 1, borderRadius: 6, marginBottom: 8 }}>
+          <Text>Deep Linked Stock ID: {deepLinkedId}</Text>
+        </View>
+      )}
+
       {/* 在庫のルート一覧 */}
       <View style={{ flex: 1 }}>
         <FlatList
           data={roots}
           keyExtractor={(item: any) => item.id.toString()}
           renderItem={({ item }) => (
-            <TouchableOpacity
-              onPress={() => navigation.navigate('StockDetail', { id: item.id })}
-            >
+            <TouchableOpacity onPress={() => navigation.navigate('StockDetail', { id: item.id })}>
               <Text style={{ fontSize: 18, marginVertical: 8 }}>{item.name}</Text>
             </TouchableOpacity>
           )}
