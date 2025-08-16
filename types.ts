@@ -10,8 +10,11 @@ export type RootStackParamList = {
   Login: undefined;
   Shelves: undefined;
 
-  // Deep Link (agrow://stock/:id) を考慮
+  // Deep Link (agrow://stock/:id) を考慮して id を任意に
   Stocks: { id?: string } | undefined;
+
+  // リマインダー作成
+  ReminderForm: undefined;
 
   // プロフィール（userId 任意指定可能）
   Profile: { userId?: string } | undefined;

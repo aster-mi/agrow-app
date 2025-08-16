@@ -19,11 +19,13 @@ import ParentSelect from './screens/ParentSelect';
 import ImageDetail from './screens/ImageDetail';
 import NfcWriter from './screens/NfcWriter';
 import NfcHistory from './screens/NfcHistory';
+import ReminderForm from './screens/ReminderForm';
 
 import { RootStackParamList } from './types';
 import { StockProvider } from './StockContext';
 import { initSyncService } from './syncService';
 import { addHistory } from './utils/nfcHistory';
+import { schedulePendingNotifications, syncReminders } from './services/reminderService';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -37,7 +39,7 @@ const linking = {
       Stocks: 'stock/:id',
       NfcWriter: 'writer',
       NfcHistory: 'history',
-      // 必要に応じて他画面も追加可（Profile は任意）
+      // 必要に応じて他画面もここへ追加
     },
   },
 };
@@ -48,6 +50,10 @@ export default function App() {
   useEffect(() => {
     // 同期サービス初期化
     initSyncService();
+
+    // 期限の近い通知のスケジューリング＆リモート同期
+    schedulePendingNotifications();
+    syncReminders();
 
     // Deep Linkで stock/:id が来たら履歴追加
     const handleUrl = ({ url }: { url: string }) => {
@@ -60,7 +66,6 @@ export default function App() {
 
     // cold start 時のURL処理
     Linking.getInitialURL().then((url) => url && handleUrl({ url }));
-
     // フォアグラウンドでのURL処理
     const sub = Linking.addEventListener('url', handleUrl);
     return () => sub.remove();
@@ -85,6 +90,7 @@ export default function App() {
           <Stack.Screen name="ImageDetail" component={ImageDetail} />
           <Stack.Screen name="NfcWriter" component={NfcWriter} />
           <Stack.Screen name="NfcHistory" component={NfcHistory} />
+          <Stack.Screen name="ReminderForm" component={ReminderForm} />
         </Stack.Navigator>
       </NavigationContainer>
     </StockProvider>
