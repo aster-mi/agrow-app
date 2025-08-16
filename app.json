@@ -2,6 +2,7 @@
   "expo": {
     "name": "agrow-app",
     "slug": "agrow-app",
+    "scheme": "agrow",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "https://placehold.co/512x512.png",
