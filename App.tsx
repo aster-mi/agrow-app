@@ -5,6 +5,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import Login from './screens/Login';
 import Shelves from './screens/Shelves';
 import Stocks from './screens/Stocks';
+import PostDetail from './screens/PostDetail';
 import { RootStackParamList } from './types';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -17,6 +18,7 @@ export default function App() {
         <Stack.Screen name="Login" component={Login} />
         <Stack.Screen name="Shelves" component={Shelves} />
         <Stack.Screen name="Stocks" component={Stocks} />
+        <Stack.Screen name="PostDetail" component={PostDetail} />
       </Stack.Navigator>
     </NavigationContainer>
   );
