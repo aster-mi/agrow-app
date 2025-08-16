@@ -1,35 +1,14 @@
-import React, { useState } from 'react';
-import { View, TextInput, Button, Text } from 'react-native';
-import * as NFC from 'expo-nfc';
+import React from 'react';
+import { View, Text } from 'react-native';
 
 export default function NfcWriter() {
-  const [stockId, setStockId] = useState('');
-  const [status, setStatus] = useState('');
-
-  const writeTag = async () => {
-    try {
-      await NFC.requestTechnologyAsync(NFC.Ndef);
-      await NFC.writeNdefMessageAsync(
-        NFC.buildNdefMessage([NFC.ndefRecords.uriRecord(`agrow://stock/${stockId}`)])
-      );
-      setStatus('タグへの書き込みに成功しました');
-    } catch (e) {
-      setStatus('書き込みに失敗しました');
-    } finally {
-      NFC.cancelTechnologyRequestAsync();
-    }
-  };
-
   return (
-    <View style={{ flex: 1, padding: 16 }}>
-      <TextInput
-        placeholder="株ID"
-        value={stockId}
-        onChangeText={setStockId}
-        style={{ borderWidth: 1, marginBottom: 16, padding: 8 }}
-      />
-      <Button title="タグへ書き込む" onPress={writeTag} />
-      <Text style={{ marginTop: 16 }}>{status}</Text>
+    <View
+      style={{ flex: 1, padding: 16, justifyContent: 'center', alignItems: 'center' }}
+    >
+      <Text>NFC書き込みは Expo Go ではサポートされていません。</Text>
+      <Text>カスタム開発ビルドでご利用ください。</Text>
     </View>
   );
 }
+
