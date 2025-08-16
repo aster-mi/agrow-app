@@ -47,6 +47,21 @@ The app expects the following environment variables to be defined (e.g. via a `.
 - `EXPO_PUBLIC_SUPABASE_URL` – Supabase project URL
 - `EXPO_PUBLIC_SUPABASE_ANON_KEY` – Supabase anon key
 
+## Local Supabase
+
+A `docker-compose.yml` file is provided to run Supabase locally. Copy `.env.example` to `.env` and start the stack:
+
+```bash
+cp .env.example .env
+docker compose up -d
+```
+
+The containers expose the Supabase APIs on your `localhost` so the application can connect using the values from the `.env` file. When you're done, stop the services with:
+
+```bash
+docker compose down
+```
+
 ## Project structure
 
 ```
