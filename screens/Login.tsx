@@ -10,6 +10,7 @@ export default function Login({ navigation }: Props) {
     <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
       <Text>Login Screen</Text>
       <Button title="Go to Shelves" onPress={() => navigation.navigate('Shelves')} />
+      <Button title="Go to Timeline" onPress={() => navigation.navigate('Timeline')} />
     </View>
   );
 }

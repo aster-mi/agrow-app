@@ -4,4 +4,9 @@ export type RootStackParamList = {
   Stocks: undefined;
   Notifications: undefined;
   NotificationSettings: undefined;
+  Timeline: undefined;
+  StockDetail: { id: number };
+  StockForm: { parentId?: number } | undefined;
+  ParentSelect: { stockId: number };
+  ImageDetail: { imageId: string };
 };
