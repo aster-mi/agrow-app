@@ -117,6 +117,8 @@ export default function Shelves({ navigation }: Props) {
         </View>
       )}
       <Button title="Go to Stocks" onPress={() => navigation.navigate('Stocks')} />
+      <Button title="Notifications" onPress={() => navigation.navigate('Notifications')} />
+      <Button title="Notification Settings" onPress={() => navigation.navigate('NotificationSettings')} />
     </View>
   );
 }
