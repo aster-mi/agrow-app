@@ -22,7 +22,10 @@ function init() {
 async function scheduleNotification(reminder: Reminder) {
   await Notifications.scheduleNotificationAsync({
     content: { title: reminder.title, body: '水やりの時間です' },
-    trigger: new Date(reminder.scheduledAt),
+    trigger: {
+      type: Notifications.SchedulableTriggerInputTypes.DATE,
+      date: new Date(reminder.scheduledAt),
+    },
   });
 }
 

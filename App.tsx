@@ -65,7 +65,7 @@ export default function App() {
     };
 
     // cold start 時のURL処理
-    Linking.getInitialURL().then((url) => url && handleUrl({ url }));
+    Linking.getInitialURL().then((url: string | null) => url && handleUrl({ url }));
     // フォアグラウンドでのURL処理
     const sub = Linking.addEventListener('url', handleUrl);
     return () => sub.remove();
