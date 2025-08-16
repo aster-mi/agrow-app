@@ -5,8 +5,18 @@ export interface Stock {
   updated_at?: string;
 }
 
+const API_BASE_URL = (process.env.EXPO_PUBLIC_API_BASE_URL ?? '').replace(/\/$/, '');
+
+if (!API_BASE_URL) {
+  console.warn(
+    '[api] EXPO_PUBLIC_API_BASE_URL is not set. Network requests may fail.'
+  );
+}
+
 export async function fetchTagSuggestions(q: string): Promise<string[]> {
-  const resp = await fetch(`/api/tags?suggest=${encodeURIComponent(q)}`);
+  const resp = await fetch(
+    `${API_BASE_URL}/api/tags?suggest=${encodeURIComponent(q)}`
+  );
   if (!resp.ok) {
     throw new Error('Failed to fetch tag suggestions');
   }
@@ -32,7 +42,7 @@ export async function searchStocks(params: SearchParams): Promise<Stock[]> {
   if (params.mineOnly) {
     query.append('mine', 'true');
   }
-  const resp = await fetch(`/api/search?${query.toString()}`);
+  const resp = await fetch(`${API_BASE_URL}/api/search?${query.toString()}`);
   if (!resp.ok) {
     throw new Error('Failed to search stocks');
   }

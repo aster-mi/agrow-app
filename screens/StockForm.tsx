@@ -25,7 +25,7 @@ export default function StockForm({ route, navigation }: Props) {
 
   const pickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      mediaTypes: [ImagePicker.MediaType.Image],
     });
     if (!result.canceled) {
       setImageUri(result.assets[0].uri);

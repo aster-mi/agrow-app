@@ -1,9 +1,10 @@
 import NetInfo from '@react-native-community/netinfo';
 import { Alert } from 'react-native';
 import { enqueue, peekQueue, clearQueue, OfflineOperation } from './offlineQueue';
+import { supabase } from './supabaseClient';
 
 const MAX_RETRIES = 3;
-const EDGE_FUNCTION_URL = '/functions/v1/sync-failure-email';
+const EDGE_FUNCTION_NAME = 'sync-failure-email';
 
 async function sendOperation(op: OfflineOperation) {
   const res = await fetch(op.url, op.options);
@@ -14,10 +15,8 @@ async function sendOperation(op: OfflineOperation) {
 
 async function notifyFailure(op: OfflineOperation, error: unknown) {
   try {
-    await fetch(EDGE_FUNCTION_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ operation: op, error: String(error) })
+    await supabase.functions.invoke(EDGE_FUNCTION_NAME, {
+      body: { operation: op, error: String(error) },
     });
   } catch {
     // ignore notification errors

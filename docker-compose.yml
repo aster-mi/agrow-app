@@ -20,7 +20,7 @@ services:
       DATABASE_URL: postgres://postgres:supabase@db:5432/postgres
       GOTRUE_SITE_URL: http://localhost:9999
       API_EXTERNAL_URL: http://localhost:9999
-      GOTRUE_JWT_SECRET: super-secret-jwt
+      GOTRUE_JWT_SECRET: super-secret-jwt1111111111111111
       GOTRUE_PORT: 9999
     ports:
       - "9999:9999"
@@ -34,7 +34,7 @@ services:
       PGRST_DB_URI: postgres://postgres:supabase@db:5432/postgres
       PGRST_DB_ANON_ROLE: anon
       PGRST_DB_SCHEMA: public
-      PGRST_JWT_SECRET: super-secret-jwt
+      PGRST_JWT_SECRET: super-secret-jwt1111111111111111
       PGRST_SERVER_PORT: 3000
     ports:
       - "3000:3000"
@@ -49,7 +49,7 @@ services:
       DB_PORT: 5432
       DB_USER: postgres
       DB_PASSWORD: supabase
-      JWT_SECRET: super-secret-jwt
+      JWT_SECRET: super-secret-jwt1111111111111111
       PORT: 4000
     ports:
       - "4000:4000"
@@ -62,7 +62,7 @@ services:
       - rest
     environment:
       POSTGREST_URL: http://rest:3000
-      PGRST_JWT_SECRET: super-secret-jwt
+      PGRST_JWT_SECRET: super-secret-jwt1111111111111111
       ANON_KEY: anon-key
       SERVICE_KEY: service-role-key
       PUBLIC_URL: http://localhost:5000
