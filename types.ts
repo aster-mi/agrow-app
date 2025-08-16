@@ -5,4 +5,5 @@ export type RootStackParamList = {
   StockDetail: { id: number };
   StockForm: { parentId?: number } | undefined;
   ParentSelect: { stockId: number };
+  ImageDetail: { imageId: string };
 };
