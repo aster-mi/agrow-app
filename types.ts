@@ -2,6 +2,7 @@ export type RootStackParamList = {
   Login: undefined;
   Shelves: undefined;
   Stocks: undefined;
+  PostDetail: { postId: string };
   Search: undefined;
   Notifications: undefined;
   NotificationSettings: undefined;
