@@ -1,6 +1,7 @@
 import "react-native-reanimated";
 import React, { useEffect } from "react";
 import { useColorScheme } from "react-native";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 import * as Linking from "expo-linking";
 import {
   NavigationContainer,
@@ -82,33 +83,35 @@ export default function App() {
   }, []);
 
   return (
-    <StockProvider>
-      <NavigationContainer
-        linking={linking}
-        theme={scheme === "dark" ? DarkTheme : DefaultTheme}
-      >
-        <Stack.Navigator initialRouteName="Login">
-          <Stack.Screen name="Login" component={Login} />
-          <Stack.Screen name="Shelves" component={Shelves} />
-          <Stack.Screen name="Stocks" component={Stocks} />
-          <Stack.Screen name="Profile" component={Profile} />
-          <Stack.Screen name="PostDetail" component={PostDetail} />
-          <Stack.Screen name="Search" component={Search} />
-          <Stack.Screen name="Notifications" component={Notifications} />
-          <Stack.Screen
-            name="NotificationSettings"
-            component={NotificationSettings}
-          />
-          <Stack.Screen name="Timeline" component={Timeline} />
-          <Stack.Screen name="StockDetail" component={StockDetail} />
-          <Stack.Screen name="StockForm" component={StockForm} />
-          <Stack.Screen name="ParentSelect" component={ParentSelect} />
-          <Stack.Screen name="ImageDetail" component={ImageDetail} />
-          <Stack.Screen name="NfcWriter" component={NfcWriter} />
-          <Stack.Screen name="NfcHistory" component={NfcHistory} />
-          <Stack.Screen name="ReminderForm" component={ReminderForm} />
-        </Stack.Navigator>
-      </NavigationContainer>
-    </StockProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <StockProvider>
+        <NavigationContainer
+          linking={linking}
+          theme={scheme === "dark" ? DarkTheme : DefaultTheme}
+        >
+          <Stack.Navigator initialRouteName="Login">
+            <Stack.Screen name="Login" component={Login} />
+            <Stack.Screen name="Shelves" component={Shelves} />
+            <Stack.Screen name="Stocks" component={Stocks} />
+            <Stack.Screen name="Profile" component={Profile} />
+            <Stack.Screen name="PostDetail" component={PostDetail} />
+            <Stack.Screen name="Search" component={Search} />
+            <Stack.Screen name="Notifications" component={Notifications} />
+            <Stack.Screen
+              name="NotificationSettings"
+              component={NotificationSettings}
+            />
+            <Stack.Screen name="Timeline" component={Timeline} />
+            <Stack.Screen name="StockDetail" component={StockDetail} />
+            <Stack.Screen name="StockForm" component={StockForm} />
+            <Stack.Screen name="ParentSelect" component={ParentSelect} />
+            <Stack.Screen name="ImageDetail" component={ImageDetail} />
+            <Stack.Screen name="NfcWriter" component={NfcWriter} />
+            <Stack.Screen name="NfcHistory" component={NfcHistory} />
+            <Stack.Screen name="ReminderForm" component={ReminderForm} />
+          </Stack.Navigator>
+        </NavigationContainer>
+      </StockProvider>
+    </GestureHandlerRootView>
   );
 }

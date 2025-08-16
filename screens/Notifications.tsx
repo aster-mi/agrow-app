@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, FlatList, TouchableOpacity, Button } from 'react-native';
 import * as ExpoNotifications from 'expo-notifications';
+import Constants from 'expo-constants';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../types';
 
@@ -22,6 +23,11 @@ export default function Notifications({ navigation }: Props) {
     async function register() {
       const { status } = await ExpoNotifications.requestPermissionsAsync();
       if (status !== 'granted') {
+        return;
+      }
+      // Expo Go does not support remote push notifications
+      if (Constants.appOwnership === 'expo') {
+        console.log('Push notifications are not supported in Expo Go.');
         return;
       }
       const token = (await ExpoNotifications.getExpoPushTokenAsync()).data;
