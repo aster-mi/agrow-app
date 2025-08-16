@@ -1,0 +1,29 @@
+{
+  "expo": {
+    "name": "agrow-app",
+    "slug": "agrow-app",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "https://placehold.co/512x512.png",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "https://placehold.co/480x480.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "https://placehold.co/432x432.png",
+        "backgroundColor": "#ffffff"
+      },
+      "edgeToEdgeEnabled": true
+    },
+    "web": {
+      "favicon": "https://placehold.co/48x48.png"
+    }
+  }
+}
