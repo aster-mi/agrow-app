@@ -10,8 +10,11 @@ export type RootStackParamList = {
   Login: undefined;
   Shelves: undefined;
 
-  // Deep Link (agrow://stock/:id) 用に id を任意で受け取れるよう統合
+  // Deep Link (agrow://stock/:id) を考慮
   Stocks: { id?: string } | undefined;
+
+  // プロフィール（userId 任意指定可能）
+  Profile: { userId?: string } | undefined;
 
   // 新規: { parentId?: number } / 編集: { stock: Stock } の両対応
   StockForm: { parentId?: number; stock?: Stock } | undefined;
@@ -25,7 +28,7 @@ export type RootStackParamList = {
   ParentSelect: { stockId: number };
   ImageDetail: { imageId: string };
 
-  // NFC 画面
+  // NFC
   NfcWriter: undefined;
   NfcHistory: undefined;
 };

@@ -7,6 +7,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import Login from './screens/Login';
 import Shelves from './screens/Shelves';
 import Stocks from './screens/Stocks';
+import Profile from './screens/Profile';
 import PostDetail from './screens/PostDetail';
 import Search from './screens/Search';
 import Notifications from './screens/Notifications';
@@ -36,7 +37,7 @@ const linking = {
       Stocks: 'stock/:id',
       NfcWriter: 'writer',
       NfcHistory: 'history',
-      // 必要に応じて他画面も追加可
+      // 必要に応じて他画面も追加可（Profile は任意）
     },
   },
 };
@@ -72,6 +73,7 @@ export default function App() {
           <Stack.Screen name="Login" component={Login} />
           <Stack.Screen name="Shelves" component={Shelves} />
           <Stack.Screen name="Stocks" component={Stocks} />
+          <Stack.Screen name="Profile" component={Profile} />
           <Stack.Screen name="PostDetail" component={PostDetail} />
           <Stack.Screen name="Search" component={Search} />
           <Stack.Screen name="Notifications" component={Notifications} />

@@ -116,6 +116,7 @@ export default function Shelves({ navigation }: Props) {
       )}
 
       <Button title="Go to Stocks" onPress={() => navigation.navigate('Stocks')} />
+      <Button title="Go to Profile" onPress={() => navigation.navigate('Profile')} />
       <Button title="Go to PostDetail" onPress={() => navigation.navigate('PostDetail', { postId: 'example-post' })} />
       <Button title="Search" onPress={() => navigation.navigate('Search')} />
       <Button title="Notifications" onPress={() => navigation.navigate('Notifications')} />
