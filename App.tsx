@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useColorScheme } from 'react-native';
 import { NavigationContainer, DarkTheme, DefaultTheme } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -18,11 +18,16 @@ import ImageDetail from './screens/ImageDetail';
 
 import { RootStackParamList } from './types';
 import { StockProvider } from './StockContext';
+import { initSyncService } from './syncService';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export default function App() {
   const scheme = useColorScheme();
+
+  useEffect(() => {
+    initSyncService();
+  }, []);
 
   return (
     <StockProvider>
