@@ -8,10 +8,11 @@ import {
   Image,
   TextInput,
   Alert,
+  Share,
 } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 
-import { RootStackParamList } from '../types';
+import { RootStackParamList /*, Stock */ } from '../types';
 import { useStocks } from '../StockContext';
 
 import * as ImagePicker from 'expo-image-picker';
@@ -21,14 +22,37 @@ import { canUpload, ensurePlantImagesBucket } from '../lib/storage';
 type Props = NativeStackScreenProps<RootStackParamList, 'Stocks'>;
 
 export default function Stocks({ navigation }: Props) {
-  // --- codex: 在庫一覧（parent_id=null のルートのみ）
+  // --- 在庫一覧（parent_id=null のルートのみ）
   const { stocks } = useStocks();
-  const roots = stocks.filter((s) => s.parent_id === null);
+  const roots = stocks.filter((s: any) => s.parent_id === null);
 
-  // --- main: 画像アップロードUI
+  // --- 画像アップロード UI
   const [image, setImage] = useState<ImagePicker.ImagePickerAsset | null>(null);
   const [shotAt, setShotAt] = useState('');
   const [memo, setMemo] = useState('');
+
+  // --- 共有（サンプル）
+  const shareStock = async (stock: { id: string | number; name: string; image?: string; isPublic?: boolean }) => {
+    // 公開・非公開で共有内容を切替（image/url の扱いは仮）
+    if (stock.isPublic) {
+      await Share.share({
+        message: `Check my stock ${stock.name}: https://example.com/stocks/${stock.id}`,
+        url: stock.image,
+      });
+    } else {
+      await Share.share({
+        message: stock.name,
+        url: stock.image,
+      });
+    }
+  };
+
+  const sampleStock = {
+    id: '1',
+    name: 'サンプル株',
+    image: 'https://placehold.co/600x400',
+    isPublic: false,
+  };
 
   const pickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -43,7 +67,7 @@ export default function Stocks({ navigation }: Props) {
       // EXIF から撮影日時を推測（なければ現在時刻）
       const exifDate = (asset.exif as any)?.DateTimeOriginal;
       if (exifDate) {
-        // "YYYY:MM:DD HH:mm:ss" → ISO へ荒めに変換
+        // "YYYY:MM:DD HH:mm:ss" → ISO へ荒変換
         const parsed = new Date(exifDate.replace(/:/g, '-').replace(' ', 'T'));
         setShotAt(parsed.toISOString());
       } else {
@@ -85,9 +109,7 @@ export default function Stocks({ navigation }: Props) {
         .from(PLANT_IMAGES_BUCKET)
         .upload(filePath, blob);
 
-      if (uploadError) {
-        throw uploadError;
-      }
+      if (uploadError) throw uploadError;
 
       const { error: insertErr } = await supabase.from('images').insert({
         user_id: user.id,
@@ -108,11 +130,11 @@ export default function Stocks({ navigation }: Props) {
 
   return (
     <View style={{ flex: 1, padding: 16, gap: 16 }}>
-      {/* 在庫のルート一覧（codex） */}
+      {/* 在庫のルート一覧 */}
       <View style={{ flex: 1 }}>
         <FlatList
           data={roots}
-          keyExtractor={(item) => item.id.toString()}
+          keyExtractor={(item: any) => item.id.toString()}
           renderItem={({ item }) => (
             <TouchableOpacity
               onPress={() => navigation.navigate('StockDetail', { id: item.id })}
@@ -123,9 +145,11 @@ export default function Stocks({ navigation }: Props) {
           ListEmptyComponent={<Text>No stocks yet</Text>}
         />
         <Button title="Add Stock" onPress={() => navigation.navigate('StockForm')} />
+        <View style={{ height: 8 }} />
+        <Button title="Share Sample" onPress={() => shareStock(sampleStock)} />
       </View>
 
-      {/* 画像アップロード（main） */}
+      {/* 画像アップロード */}
       <View style={{ borderTopWidth: 1, paddingTop: 16 }}>
         {image && (
           <Image
