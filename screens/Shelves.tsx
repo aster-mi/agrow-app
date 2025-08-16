@@ -45,7 +45,7 @@ export default function Shelves({ navigation }: Props) {
     <View style={{ flex: 1 }}>
       <DraggableFlatList
         data={shelves}
-        keyExtractor={item => item.id.toString()}
+        keyExtractor={(item) => item.id.toString()}
         onDragEnd={({ data }) => {
           setShelves(data);
           saveShelfOrder(data);
@@ -62,17 +62,15 @@ export default function Shelves({ navigation }: Props) {
           </ScaleDecorator>
         )}
       />
+
       {selectedShelf && (
         <View style={{ flex: 1 }}>
-          <Button
-            title={editing ? 'Done' : 'Edit'}
-            onPress={() => setEditing(!editing)}
-          />
+          <Button title={editing ? 'Done' : 'Edit'} onPress={() => setEditing(!editing)} />
           {editing ? (
             <DraggableFlatList
               data={slots}
               numColumns={selectedShelf.grid}
-              keyExtractor={item => item.id.toString()}
+              keyExtractor={(item) => item.id.toString()}
               onDragEnd={({ data }) => {
                 setSlots(data);
                 saveSlotOrder(selectedShelf.id, data);
@@ -97,7 +95,7 @@ export default function Shelves({ navigation }: Props) {
             />
           ) : (
             <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
-              {slots.map(slot => (
+              {slots.map((slot) => (
                 <View
                   key={slot.id}
                   style={{
@@ -116,9 +114,14 @@ export default function Shelves({ navigation }: Props) {
           )}
         </View>
       )}
+
       <Button title="Go to Stocks" onPress={() => navigation.navigate('Stocks')} />
+      <Button title="Search" onPress={() => navigation.navigate('Search')} />
       <Button title="Notifications" onPress={() => navigation.navigate('Notifications')} />
-      <Button title="Notification Settings" onPress={() => navigation.navigate('NotificationSettings')} />
+      <Button
+        title="Notification Settings"
+        onPress={() => navigation.navigate('NotificationSettings')}
+      />
     </View>
   );
 }
