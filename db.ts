@@ -7,163 +7,184 @@ export type Post = {
   images: string[];
 };
 
-/** ===== Single DB Instance ===== */
-const db = SQLite.openDatabase('agrow.db');
+/** ===== DB (Singleton) ===== */
+let dbPromise: Promise<SQLite.SQLiteDatabase> | null = null;
+async function getDb() {
+  if (!dbPromise) {
+    dbPromise = SQLite.openDatabaseAsync('agrow.db');
+  }
+  return dbPromise;
+}
 
 /** ===== Init (creates ALL tables) ===== */
-export function initDb() {
-  db.transaction(tx => {
-    // (optional) enable FK constraints (safe even if not supported)
-    tx.executeSql('PRAGMA foreign_keys = ON;');
+export async function initDb() {
+  const db = await getDb();
 
-    // --- shelves / slots (main) ---
-    tx.executeSql(
-      'CREATE TABLE IF NOT EXISTS shelves (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, grid INTEGER, position INTEGER);'
-    );
-    tx.executeSql(
-      'CREATE TABLE IF NOT EXISTS shelf_slots (id INTEGER PRIMARY KEY AUTOINCREMENT, shelf_id INTEGER, position INTEGER, plant TEXT, FOREIGN KEY (shelf_id) REFERENCES shelves(id));'
+  // まとめて実行可能（複数ステートメントOK）
+  await db.execAsync(`
+    PRAGMA foreign_keys = ON;
+
+    CREATE TABLE IF NOT EXISTS shelves (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT,
+      grid INTEGER,
+      position INTEGER
     );
 
-    // --- timeline (codex) ---
-    tx.executeSql(
-      `CREATE TABLE IF NOT EXISTS timeline_posts (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        text TEXT NOT NULL,
-        images TEXT
-      );`
+    CREATE TABLE IF NOT EXISTS shelf_slots (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      shelf_id INTEGER,
+      position INTEGER,
+      plant TEXT,
+      FOREIGN KEY (shelf_id) REFERENCES shelves(id)
     );
-    tx.executeSql(
-      `CREATE TABLE IF NOT EXISTS timeline_reactions (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        post_id INTEGER NOT NULL,
-        type TEXT NOT NULL,
-        content TEXT
-      );`
+
+    CREATE TABLE IF NOT EXISTS timeline_posts (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      text TEXT NOT NULL,
+      images TEXT
     );
-  });
+
+    CREATE TABLE IF NOT EXISTS timeline_reactions (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      post_id INTEGER NOT NULL,
+      type TEXT NOT NULL,
+      content TEXT
+    );
+  `);
 }
 
 /** Alias to keep backward compatibility with codex branch name */
 export const initDB = initDb;
 
 /** ===== Shelves APIs (main) ===== */
-export function getShelves(callback: (rows: any[]) => void) {
-  db.transaction(tx => {
-    tx.executeSql('SELECT * FROM shelves ORDER BY position ASC;', [], (_t, { rows }) => {
-      callback(rows._array);
-    });
+export async function getShelves(callback: (rows: any[]) => void) {
+  const db = await getDb();
+  const rows = await db.getAllAsync<any>('SELECT * FROM shelves ORDER BY position ASC;');
+  callback(rows);
+}
+
+export async function saveShelfOrder(shelves: any[]) {
+  const db = await getDb();
+  await db.withTransactionAsync(async () => {
+    for (let i = 0; i < shelves.length; i++) {
+      await db.runAsync('UPDATE shelves SET position = ? WHERE id = ?', [i, shelves[i].id]);
+    }
   });
 }
 
-export function saveShelfOrder(shelves: any[]) {
-  db.transaction(tx => {
-    shelves.forEach((shelf, index) => {
-      tx.executeSql('UPDATE shelves SET position = ? WHERE id = ?', [index, shelf.id]);
-    });
-  });
+export async function getSlots(shelfId: number, callback: (rows: any[]) => void) {
+  const db = await getDb();
+  const rows = await db.getAllAsync<any>(
+    'SELECT * FROM shelf_slots WHERE shelf_id = ? ORDER BY position ASC;',
+    [shelfId]
+  );
+  callback(rows);
 }
 
-export function getSlots(shelfId: number, callback: (rows: any[]) => void) {
-  db.transaction(tx => {
-    tx.executeSql(
-      'SELECT * FROM shelf_slots WHERE shelf_id = ? ORDER BY position ASC;',
-      [shelfId],
-      (_t, { rows }) => callback(rows._array)
-    );
-  });
-}
-
-export function saveSlotOrder(shelfId: number, slots: any[]) {
-  db.transaction(tx => {
-    slots.forEach((slot, index) => {
-      tx.executeSql('UPDATE shelf_slots SET position = ? WHERE id = ?', [index, slot.id]);
-    });
+export async function saveSlotOrder(_shelfId: number, slots: any[]) {
+  const db = await getDb();
+  await db.withTransactionAsync(async () => {
+    for (let i = 0; i < slots.length; i++) {
+      await db.runAsync('UPDATE shelf_slots SET position = ? WHERE id = ?', [i, slots[i].id]);
+    }
   });
 }
 
 /** ===== Timeline APIs (codex) ===== */
-export const fetchPosts = (offset: number, limit: number, callback: (posts: Post[]) => void) => {
-  db.transaction(tx => {
-    tx.executeSql(
-      'SELECT * FROM timeline_posts ORDER BY id DESC LIMIT ? OFFSET ?;',
-      [limit, offset],
-      (_t, { rows }) => {
-        const data: Post[] = rows._array.map((row: any) => ({
-          id: row.id,
-          text: row.text,
-          images: row.images ? JSON.parse(row.images) : [],
-        }));
-        callback(data);
-      }
-    );
-  });
-};
+export async function fetchPosts(
+  offset: number,
+  limit: number,
+  callback: (posts: Post[]) => void
+) {
+  const db = await getDb();
+  const rows = await db.getAllAsync<any>(
+    'SELECT * FROM timeline_posts ORDER BY id DESC LIMIT ? OFFSET ?;',
+    [limit, offset]
+  );
+  const data: Post[] = rows.map((row) => ({
+    id: row.id,
+    text: row.text,
+    images: row.images ? JSON.parse(row.images) : [],
+  }));
+  callback(data);
+}
 
-export const addPost = (text: string, images: string[], callback?: () => void) => {
-  db.transaction(tx => {
-    tx.executeSql(
-      'INSERT INTO timeline_posts (text, images) VALUES (?, ?);',
-      [text, JSON.stringify(images)],
-      () => callback && callback()
-    );
-  });
-};
+export async function addPost(text: string, images: string[], callback?: () => void) {
+  const db = await getDb();
+  await db.runAsync('INSERT INTO timeline_posts (text, images) VALUES (?, ?);', [
+    text,
+    JSON.stringify(images),
+  ]);
+  callback && callback();
+}
 
-export const updatePost = (id: number, text: string, images: string[], callback?: () => void) => {
-  db.transaction(tx => {
-    tx.executeSql(
-      'UPDATE timeline_posts SET text = ?, images = ? WHERE id = ?;',
-      [text, JSON.stringify(images), id],
-      () => callback && callback()
-    );
-  });
-};
+export async function updatePost(
+  id: number,
+  text: string,
+  images: string[],
+  callback?: () => void
+) {
+  const db = await getDb();
+  await db.runAsync('UPDATE timeline_posts SET text = ?, images = ? WHERE id = ?;', [
+    text,
+    JSON.stringify(images),
+    id,
+  ]);
+  callback && callback();
+}
 
-export const deletePost = (id: number, callback?: () => void) => {
-  db.transaction(tx => {
-    tx.executeSql('DELETE FROM timeline_posts WHERE id = ?;', [id]);
-    tx.executeSql('DELETE FROM timeline_reactions WHERE post_id = ?;', [id], () => callback && callback());
+export async function deletePost(id: number, callback?: () => void) {
+  const db = await getDb();
+  await db.withTransactionAsync(async () => {
+    await db.runAsync('DELETE FROM timeline_posts WHERE id = ?;', [id]);
+    await db.runAsync('DELETE FROM timeline_reactions WHERE post_id = ?;', [id]);
   });
-};
+  callback && callback();
+}
 
-export const addReaction = (postId: number, type: string, content?: string, callback?: () => void) => {
-  db.transaction(tx => {
-    tx.executeSql(
-      'INSERT INTO timeline_reactions (post_id, type, content) VALUES (?, ?, ?);',
-      [postId, type, content || null],
-      () => callback && callback()
-    );
-  });
-};
+export async function addReaction(
+  postId: number,
+  type: string,
+  content?: string,
+  callback?: () => void
+) {
+  const db = await getDb();
+  await db.runAsync('INSERT INTO timeline_reactions (post_id, type, content) VALUES (?, ?, ?);', [
+    postId,
+    type,
+    content ?? null,
+  ]);
+  callback && callback();
+}
 
-export const getReactionCount = (postId: number, type: string, callback: (count: number) => void) => {
-  db.transaction(tx => {
-    tx.executeSql(
-      'SELECT COUNT(*) as count FROM timeline_reactions WHERE post_id = ? AND type = ?;',
-      [postId, type],
-      (_t, { rows }) => callback(rows._array[0].count)
-    );
-  });
-};
+export async function getReactionCount(
+  postId: number,
+  type: string,
+  callback: (count: number) => void
+) {
+  const db = await getDb();
+  // 1行取得に便利な getFirstAsync
+  const row = await db.getFirstAsync<{ count: number }>(
+    'SELECT COUNT(*) as count FROM timeline_reactions WHERE post_id = ? AND type = ?;',
+    [postId, type]
+  );
+  callback(row?.count ?? 0);
+}
 
-export const getReactionCounts = (
+export async function getReactionCounts(
   postId: number,
   callback: (counts: { like: number; comment: number; repost: number }) => void
-) => {
-  db.transaction(tx => {
-    tx.executeSql(
-      'SELECT type, COUNT(*) as count FROM timeline_reactions WHERE post_id = ? GROUP BY type;',
-      [postId],
-      (_t, { rows }) => {
-        const counts: Record<string, number> = { like: 0, comment: 0, repost: 0 };
-        rows._array.forEach((row: any) => {
-          counts[row.type] = row.count;
-        });
-        callback({ like: counts.like || 0, comment: counts.comment || 0, repost: counts.repost || 0 });
-      }
-    );
-  });
-};
+) {
+  const db = await getDb();
+  const rows = await db.getAllAsync<{ type: string; count: number }>(
+    'SELECT type, COUNT(*) as count FROM timeline_reactions WHERE post_id = ? GROUP BY type;',
+    [postId]
+  );
+  const acc: Record<string, number> = { like: 0, comment: 0, repost: 0 };
+  for (const r of rows) acc[r.type] = r.count;
+  callback({ like: acc.like || 0, comment: acc.comment || 0, repost: acc.repost || 0 });
+}
 
-/** default export for direct DB access if ever needed */
-export default db;
+/** default export: DB getter（直接操作したい場合に await getDb() を使う） */
+export default getDb;

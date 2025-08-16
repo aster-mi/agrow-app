@@ -9,81 +9,90 @@ export type Reminder = {
   synced?: number; // 0 unsynced, 1 synced
 };
 
-const db = SQLite.openDatabase('reminders.db');
+/** ===== DB (singleton, async) ===== */
+let dbPromise: Promise<SQLite.SQLiteDatabase> | null = null;
+async function getDb() {
+  if (!dbPromise) dbPromise = SQLite.openDatabaseAsync('reminders.db');
+  return dbPromise;
+}
 
-function init() {
-  db.transaction(tx => {
-    tx.executeSql(
-      'CREATE TABLE IF NOT EXISTS reminders (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, scheduledAt TEXT, synced INTEGER);'
+/** ===== Init ===== */
+async function init() {
+  const db = await getDb();
+  await db.execAsync(`
+    CREATE TABLE IF NOT EXISTS reminders (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      title TEXT,
+      scheduledAt TEXT,
+      synced INTEGER
     );
-  });
+  `);
+}
+
+/** ===== Notifications ===== */
+async function ensureNotificationPermissions() {
+  const { status } = await Notifications.getPermissionsAsync();
+  if (status !== 'granted') {
+    await Notifications.requestPermissionsAsync();
+  }
 }
 
 async function scheduleNotification(reminder: Reminder) {
+  await ensureNotificationPermissions();
   await Notifications.scheduleNotificationAsync({
     content: { title: reminder.title, body: '水やりの時間です' },
-    trigger: {
-      type: Notifications.SchedulableTriggerInputTypes.DATE,
-      date: new Date(reminder.scheduledAt),
-    },
+    // DATE 指定はこれが最もシンプルで型も安全
+    trigger: new Date(reminder.scheduledAt),
   });
 }
 
-export function schedulePendingNotifications() {
-  init();
-  db.transaction(tx => {
-    tx.executeSql('SELECT * FROM reminders;', [], async (_, { rows }) => {
-      for (const rem of rows._array as Reminder[]) {
-        await scheduleNotification(rem);
-      }
-    });
-  });
+/** ===== Public APIs ===== */
+export async function schedulePendingNotifications() {
+  await init();
+  const db = await getDb();
+  const rows = await db.getAllAsync<Reminder>('SELECT * FROM reminders;');
+  for (const rem of rows) {
+    await scheduleNotification(rem);
+  }
 }
 
 export async function addReminder(title: string, date: Date) {
-  init();
-  return new Promise<void>((resolve, reject) => {
-    db.transaction(tx => {
-      tx.executeSql(
-        'INSERT INTO reminders (title, scheduledAt, synced) VALUES (?, ?, 0);',
-        [title, date.toISOString()],
-        async (_, result) => {
-          await scheduleNotification({
-            id: result.insertId as number,
-            title,
-            scheduledAt: date.toISOString(),
-            synced: 0,
-          });
-          await syncReminders();
-          resolve();
-        },
-        (_, error) => {
-          reject(error);
-          return false;
-        }
-      );
-    });
+  await init();
+  const db = await getDb();
+  const res = await db.runAsync(
+    'INSERT INTO reminders (title, scheduledAt, synced) VALUES (?, ?, 0);',
+    [title, date.toISOString()]
+  );
+
+  await scheduleNotification({
+    id: res.lastInsertRowId,
+    title,
+    scheduledAt: date.toISOString(),
+    synced: 0,
   });
+
+  await syncReminders();
 }
 
 export async function syncReminders() {
-  init();
+  await init();
   const state = await Network.getNetworkStateAsync();
   if (!state.isConnected) return;
-  db.transaction(tx => {
-    tx.executeSql('SELECT * FROM reminders WHERE synced = 0;', [], async (_, { rows }) => {
-      const unsynced = rows._array as Reminder[];
-      if (unsynced.length === 0) return;
-      try {
-        await fetch('https://example.com/api/reminders', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(unsynced),
-        });
-        tx.executeSql('UPDATE reminders SET synced = 1 WHERE synced = 0;');
-      } catch (e) {
-        // keep unsynced for later retry
-      }
+
+  const db = await getDb();
+  const unsynced = await db.getAllAsync<Reminder>(
+    'SELECT * FROM reminders WHERE synced = 0;'
+  );
+  if (unsynced.length === 0) return;
+
+  try {
+    await fetch('https://example.com/api/reminders', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(unsynced),
     });
-  });
+    await db.runAsync('UPDATE reminders SET synced = 1 WHERE synced = 0;');
+  } catch {
+    // keep unsynced for later retry
+  }
 }

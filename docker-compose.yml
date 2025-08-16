@@ -1,8 +1,8 @@
-version: '3.9'
+version: "3.9"
 services:
   db:
     container_name: supabase-db
-    image: supabase/postgres:latest
+    image: supabase/postgres:15.8.1.131
     ports:
       - "54322:5432"
     volumes:
@@ -12,7 +12,7 @@ services:
 
   auth:
     container_name: supabase-auth
-    image: supabase/gotrue:latest
+    image: supabase/gotrue:v2.178.0
     depends_on:
       - db
     environment:
