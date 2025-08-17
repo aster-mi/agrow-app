@@ -12,6 +12,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Heart, MessageCircle, Repeat2, Share, Search, Plus } from 'lucide-react-native';
 import { router, useFocusEffect } from 'expo-router';
 import { fetchPosts, Post as DbPost } from '../../db';
+import { useTheme, ThemeColors } from '../../ThemeContext';
 
 interface TimelinePost {
   id: string;
@@ -76,6 +77,8 @@ const mockPosts: TimelinePost[] = [
 export default function HomeScreen() {
   const [posts, setPosts] = useState<TimelinePost[]>([]);
   const [refreshing, setRefreshing] = useState(false);
+  const { colors } = useTheme();
+  const styles = getStyles(colors);
 
   const loadPosts = () => {
     fetchPosts(0, 50, (dbPosts: DbPost[]) => {
@@ -170,9 +173,9 @@ export default function HomeScreen() {
           style={styles.actionButton}
           onPress={() => toggleLike(post.id)}
         >
-          <Heart 
-            size={20} 
-            color={post.isLiked ? '#dc2626' : '#6b7280'} 
+          <Heart
+            size={20}
+            color={post.isLiked ? '#dc2626' : colors.secondary}
             fill={post.isLiked ? '#dc2626' : 'transparent'}
           />
           <Text style={[styles.actionText, post.isLiked && styles.likedText]}>
@@ -181,17 +184,17 @@ export default function HomeScreen() {
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.actionButton}>
-          <MessageCircle size={20} color="#6b7280" />
+          <MessageCircle size={20} color={colors.secondary} />
           <Text style={styles.actionText}>{post.comments}</Text>
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.actionButton}>
-          <Repeat2 size={20} color="#6b7280" />
+          <Repeat2 size={20} color={colors.secondary} />
           <Text style={styles.actionText}>{post.reposts}</Text>
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.actionButton}>
-          <Share size={20} color="#6b7280" />
+          <Share size={20} color={colors.secondary} />
         </TouchableOpacity>
       </View>
     </View>
@@ -202,7 +205,7 @@ export default function HomeScreen() {
       <View style={styles.header}>
         <Text style={styles.headerTitle}>タイムライン</Text>
         <TouchableOpacity style={styles.searchButton}>
-          <Search size={24} color="#16a34a" />
+          <Search size={24} color={colors.primary} />
         </TouchableOpacity>
         <TouchableOpacity style={styles.addPostButton} onPress={handleCreatePost}>
           <Plus size={24} color="#ffffff" />
@@ -221,151 +224,152 @@ export default function HomeScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f8fafc',
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-    backgroundColor: '#ffffff',
-    borderBottomWidth: 1,
-    borderBottomColor: '#e5e7eb',
-  },
-  headerTitle: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: '#16a34a',
-  },
-  searchButton: {
-    padding: 8,
-  },
-  addPostButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#16a34a',
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 4,
-  },
-  timeline: {
-    flex: 1,
-  },
-  postCard: {
-    backgroundColor: '#ffffff',
-    marginVertical: 4,
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#f1f5f9',
-  },
-  postHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  userAvatar: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    marginRight: 12,
-  },
-  userInfo: {
-    flex: 1,
-  },
-  userName: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#1f2937',
-    marginBottom: 2,
-  },
-  userHandle: {
-    fontSize: 14,
-    color: '#6b7280',
-  },
-  postContent: {
-    fontSize: 16,
-    lineHeight: 24,
-    color: '#374151',
-    marginBottom: 12,
-  },
-  agaveTag: {
-    backgroundColor: '#f0fdf4',
-    borderRadius: 12,
-    padding: 12,
-    marginBottom: 12,
-    borderLeftWidth: 4,
-    borderLeftColor: '#16a34a',
-  },
-  agaveTagText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#15803d',
-    marginBottom: 8,
-  },
-  tags: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 6,
-  },
-  tag: {
-    backgroundColor: '#dcfce7',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 12,
-  },
-  tagText: {
-    fontSize: 12,
-    color: '#15803d',
-    fontWeight: '500',
-  },
-  imageContainer: {
-    marginBottom: 12,
-  },
-  singleImage: {
-    width: '100%',
-    height: 200,
-    borderRadius: 12,
-    resizeMode: 'cover',
-  },
-  multiImageGrid: {
-    flexDirection: 'row',
-    gap: 4,
-  },
-  gridImage: {
-    flex: 1,
-    height: 120,
-    borderRadius: 8,
-    resizeMode: 'cover',
-  },
-  postActions: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    paddingTop: 12,
-    borderTopWidth: 1,
-    borderTopColor: '#f1f5f9',
-  },
-  actionButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-  },
-  actionText: {
-    fontSize: 14,
-    color: '#6b7280',
-    fontWeight: '500',
-  },
-  likedText: {
-    color: '#dc2626',
-  },
-});
+const getStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    header: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      paddingHorizontal: 20,
+      paddingVertical: 16,
+      backgroundColor: colors.card,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+    },
+    headerTitle: {
+      fontSize: 24,
+      fontWeight: '700',
+      color: colors.primary,
+    },
+    searchButton: {
+      padding: 8,
+    },
+    addPostButton: {
+      width: 40,
+      height: 40,
+      borderRadius: 20,
+      backgroundColor: colors.primary,
+      justifyContent: 'center',
+      alignItems: 'center',
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.2,
+      shadowRadius: 4,
+      elevation: 4,
+    },
+    timeline: {
+      flex: 1,
+    },
+    postCard: {
+      backgroundColor: colors.card,
+      marginVertical: 4,
+      padding: 16,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+    },
+    postHeader: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginBottom: 12,
+    },
+    userAvatar: {
+      width: 48,
+      height: 48,
+      borderRadius: 24,
+      marginRight: 12,
+    },
+    userInfo: {
+      flex: 1,
+    },
+    userName: {
+      fontSize: 16,
+      fontWeight: '600',
+      color: colors.text,
+      marginBottom: 2,
+    },
+    userHandle: {
+      fontSize: 14,
+      color: colors.secondary,
+    },
+    postContent: {
+      fontSize: 16,
+      lineHeight: 24,
+      color: colors.text,
+      marginBottom: 12,
+    },
+    agaveTag: {
+      backgroundColor: '#f0fdf4',
+      borderRadius: 12,
+      padding: 12,
+      marginBottom: 12,
+      borderLeftWidth: 4,
+      borderLeftColor: colors.primary,
+    },
+    agaveTagText: {
+      fontSize: 16,
+      fontWeight: '600',
+      color: '#15803d',
+      marginBottom: 8,
+    },
+    tags: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: 6,
+    },
+    tag: {
+      backgroundColor: '#dcfce7',
+      paddingHorizontal: 8,
+      paddingVertical: 4,
+      borderRadius: 12,
+    },
+    tagText: {
+      fontSize: 12,
+      color: '#15803d',
+      fontWeight: '500',
+    },
+    imageContainer: {
+      marginBottom: 12,
+    },
+    singleImage: {
+      width: '100%',
+      height: 200,
+      borderRadius: 12,
+      resizeMode: 'cover',
+    },
+    multiImageGrid: {
+      flexDirection: 'row',
+      gap: 4,
+    },
+    gridImage: {
+      flex: 1,
+      height: 120,
+      borderRadius: 8,
+      resizeMode: 'cover',
+    },
+    postActions: {
+      flexDirection: 'row',
+      justifyContent: 'space-around',
+      paddingTop: 12,
+      borderTopWidth: 1,
+      borderTopColor: colors.border,
+    },
+    actionButton: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 6,
+      paddingHorizontal: 12,
+      paddingVertical: 8,
+    },
+    actionText: {
+      fontSize: 14,
+      color: colors.secondary,
+      fontWeight: '500',
+    },
+    likedText: {
+      color: '#dc2626',
+    },
+  });
