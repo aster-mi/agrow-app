@@ -55,7 +55,8 @@ export interface NewStockParams {
   name: string;
   parentId?: number;
   isPublic?: boolean;
-  tagIds?: number[];
+  tags?: string[];
+  images?: string[];
 }
 
 export async function addStock(
@@ -71,7 +72,8 @@ export async function addStock(
         name: params.name,
         parent_id: params.parentId ?? null,
         is_public: params.isPublic ?? true,
-        tag_ids: params.tagIds ?? [],
+        tags: params.tags ?? [],
+        images: params.images ?? [],
       }),
     },
   } as const;
