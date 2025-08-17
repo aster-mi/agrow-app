@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   View,
   Text,
@@ -15,6 +15,7 @@ import { router } from 'expo-router';
 import { Camera, Image as ImageIcon, X, Hash, MapPin, ArrowLeft } from 'lucide-react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { addPost } from '../../db';
+import { useTheme } from '../../ThemeContext';
 
 const { width } = Dimensions.get('window');
 
@@ -24,11 +25,13 @@ interface PostImage {
 }
 
 export default function PostScreen() {
+  const { colors } = useTheme();
   const [content, setContent] = useState('');
   const [images, setImages] = useState<PostImage[]>([]);
   const [tags, setTags] = useState('');
   const [selectedAgave, setSelectedAgave] = useState<string | null>(null);
   const [isPublic, setIsPublic] = useState(true);
+  const styles = useMemo(() => createStyles(colors), [colors]);
 
   const pickImage = async () => {
     if (images.length >= 4) {
@@ -157,7 +160,7 @@ export default function PostScreen() {
           style={styles.backButton}
           onPress={() => router.back()}
         >
-          <ArrowLeft size={24} color="#16a34a" />
+          <ArrowLeft size={24} color={colors.primary} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>新規投稿</Text>
         <TouchableOpacity 
@@ -179,7 +182,7 @@ export default function PostScreen() {
           onChangeText={setContent}
           multiline
           maxLength={280}
-          placeholderTextColor="#9ca3af"
+          placeholderTextColor={colors.secondary}
         />
 
         <Text style={styles.characterCount}>
@@ -194,7 +197,7 @@ export default function PostScreen() {
             <View style={styles.agaveTag}>
               <Text style={styles.agaveTagText}>🌵 {selectedAgave}</Text>
               <TouchableOpacity onPress={() => setSelectedAgave(null)}>
-                <X size={16} color="#15803d" />
+                <X size={16} color={colors.primary} />
               </TouchableOpacity>
             </View>
           </View>
@@ -207,7 +210,7 @@ export default function PostScreen() {
             placeholder="タグをスペース区切りで入力 (例: 白鯨 チタノタ 室内栽培)"
             value={tags}
             onChangeText={setTags}
-            placeholderTextColor="#9ca3af"
+            placeholderTextColor={colors.secondary}
           />
           {tags.length > 0 && (
             <View style={styles.tagPreview}>
@@ -222,7 +225,7 @@ export default function PostScreen() {
 
         <View style={styles.postOptions}>
           <TouchableOpacity style={styles.optionButton} onPress={selectAgave}>
-            <MapPin size={20} color="#16a34a" />
+            <MapPin size={20} color={colors.primary} />
             <Text style={styles.optionButtonText}>
               {selectedAgave ? 'アガベを変更' : 'アガベを選択'}
             </Text>
@@ -242,13 +245,13 @@ export default function PostScreen() {
 
       <View style={styles.toolbar}>
         <TouchableOpacity style={styles.toolButton} onPress={takePhoto}>
-          <Camera size={24} color="#16a34a" />
+          <Camera size={24} color={colors.primary} />
         </TouchableOpacity>
         <TouchableOpacity style={styles.toolButton} onPress={pickImage}>
-          <ImageIcon size={24} color="#16a34a" />
+          <ImageIcon size={24} color={colors.primary} />
         </TouchableOpacity>
         <TouchableOpacity style={styles.toolButton} onPress={() => setTags(tags + '#')}>
-          <Hash size={24} color="#16a34a" />
+          <Hash size={24} color={colors.primary} />
         </TouchableOpacity>
         <Text style={styles.imageCount}>{images.length}/4</Text>
       </View>
@@ -256,203 +259,204 @@ export default function PostScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#ffffff',
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#e5e7eb',
-  },
-  backButton: {
-    padding: 8,
-  },
-  headerTitle: {
-    flex: 1,
-    fontSize: 20,
-    fontWeight: '600',
-    color: '#1f2937',
-    textAlign: 'center',
-    marginHorizontal: 16,
-  },
-  postButton: {
-    backgroundColor: '#16a34a',
-    paddingHorizontal: 20,
-    paddingVertical: 8,
-    borderRadius: 20,
-  },
-  postButtonDisabled: {
-    backgroundColor: '#d1d5db',
-  },
-  postButtonText: {
-    color: '#ffffff',
-    fontWeight: '600',
-    fontSize: 16,
-  },
-  postButtonTextDisabled: {
-    color: '#9ca3af',
-  },
-  content: {
-    flex: 1,
-    padding: 20,
-  },
-  contentInput: {
-    fontSize: 18,
-    lineHeight: 28,
-    color: '#374151',
-    minHeight: 120,
-    textAlignVertical: 'top',
-  },
-  characterCount: {
-    textAlign: 'right',
-    fontSize: 14,
-    color: '#9ca3af',
-    marginBottom: 20,
-  },
-  imageGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    marginBottom: 20,
-  },
-  imageContainer: {
-    position: 'relative',
-  },
-  selectedImage: {
-    width: '100%',
-    height: '100%',
-    borderRadius: 12,
-    resizeMode: 'cover',
-  },
-  removeImageButton: {
-    position: 'absolute',
-    top: 8,
-    right: 8,
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    backgroundColor: 'rgba(0, 0, 0, 0.7)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  selectedAgave: {
-    marginBottom: 20,
-  },
-  selectedAgaveLabel: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#374151',
-    marginBottom: 8,
-  },
-  agaveTag: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#f0fdf4',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 12,
-    alignSelf: 'flex-start',
-    gap: 8,
-  },
-  agaveTagText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#15803d',
-  },
-  tagsSection: {
-    marginBottom: 20,
-  },
-  sectionLabel: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#374151',
-    marginBottom: 8,
-  },
-  tagsInput: {
-    borderWidth: 1,
-    borderColor: '#d1d5db',
-    borderRadius: 12,
-    padding: 12,
-    fontSize: 16,
-    color: '#374151',
-  },
-  tagPreview: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-    marginTop: 12,
-  },
-  previewTag: {
-    backgroundColor: '#dcfce7',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 16,
-  },
-  previewTagText: {
-    fontSize: 14,
-    color: '#15803d',
-    fontWeight: '500',
-  },
-  postOptions: {
-    gap: 16,
-  },
-  optionButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    padding: 12,
-    borderWidth: 1,
-    borderColor: '#dcfce7',
-    borderRadius: 12,
-    backgroundColor: '#f9fafb',
-  },
-  optionButtonText: {
-    fontSize: 16,
-    color: '#374151',
-    fontWeight: '500',
-  },
-  visibilityToggle: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    padding: 12,
-  },
-  toggleDot: {
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    backgroundColor: '#d1d5db',
-  },
-  toggleDotActive: {
-    backgroundColor: '#16a34a',
-  },
-  visibilityText: {
-    fontSize: 16,
-    color: '#374151',
-    fontWeight: '500',
-  },
-  toolbar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-    backgroundColor: '#f9fafb',
-    borderTopWidth: 1,
-    borderTopColor: '#e5e7eb',
-    gap: 20,
-  },
-  toolButton: {
-    padding: 8,
-  },
-  imageCount: {
-    marginLeft: 'auto',
-    fontSize: 14,
-    color: '#6b7280',
-    fontWeight: '500',
-  },
-});
+const createStyles = (colors: any) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    header: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      paddingHorizontal: 20,
+      paddingVertical: 16,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+    },
+    backButton: {
+      padding: 8,
+    },
+    headerTitle: {
+      flex: 1,
+      fontSize: 20,
+      fontWeight: '600',
+      color: colors.text,
+      textAlign: 'center',
+      marginHorizontal: 16,
+    },
+    postButton: {
+      backgroundColor: colors.primary,
+      paddingHorizontal: 20,
+      paddingVertical: 8,
+      borderRadius: 20,
+    },
+    postButtonDisabled: {
+      backgroundColor: colors.border,
+    },
+    postButtonText: {
+      color: '#ffffff',
+      fontWeight: '600',
+      fontSize: 16,
+    },
+    postButtonTextDisabled: {
+      color: colors.secondary,
+    },
+    content: {
+      flex: 1,
+      padding: 20,
+    },
+    contentInput: {
+      fontSize: 18,
+      lineHeight: 28,
+      color: colors.text,
+      minHeight: 120,
+      textAlignVertical: 'top',
+    },
+    characterCount: {
+      textAlign: 'right',
+      fontSize: 14,
+      color: colors.secondary,
+      marginBottom: 20,
+    },
+    imageGrid: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      marginBottom: 20,
+    },
+    imageContainer: {
+      position: 'relative',
+    },
+    selectedImage: {
+      width: '100%',
+      height: '100%',
+      borderRadius: 12,
+      resizeMode: 'cover',
+    },
+    removeImageButton: {
+      position: 'absolute',
+      top: 8,
+      right: 8,
+      width: 24,
+      height: 24,
+      borderRadius: 12,
+      backgroundColor: 'rgba(0, 0, 0, 0.7)',
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    selectedAgave: {
+      marginBottom: 20,
+    },
+    selectedAgaveLabel: {
+      fontSize: 14,
+      fontWeight: '600',
+      color: colors.text,
+      marginBottom: 8,
+    },
+    agaveTag: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: colors.card,
+      paddingHorizontal: 12,
+      paddingVertical: 8,
+      borderRadius: 12,
+      alignSelf: 'flex-start',
+      gap: 8,
+    },
+    agaveTagText: {
+      fontSize: 14,
+      fontWeight: '600',
+      color: colors.primary,
+    },
+    tagsSection: {
+      marginBottom: 20,
+    },
+    sectionLabel: {
+      fontSize: 16,
+      fontWeight: '600',
+      color: colors.text,
+      marginBottom: 8,
+    },
+    tagsInput: {
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderRadius: 12,
+      padding: 12,
+      fontSize: 16,
+      color: colors.text,
+    },
+    tagPreview: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: 8,
+      marginTop: 12,
+    },
+    previewTag: {
+      backgroundColor: colors.card,
+      paddingHorizontal: 12,
+      paddingVertical: 6,
+      borderRadius: 16,
+    },
+    previewTagText: {
+      fontSize: 14,
+      color: colors.primary,
+      fontWeight: '500',
+    },
+    postOptions: {
+      gap: 16,
+    },
+    optionButton: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 12,
+      padding: 12,
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderRadius: 12,
+      backgroundColor: colors.card,
+    },
+    optionButtonText: {
+      fontSize: 16,
+      color: colors.text,
+      fontWeight: '500',
+    },
+    visibilityToggle: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 12,
+      padding: 12,
+    },
+    toggleDot: {
+      width: 20,
+      height: 20,
+      borderRadius: 10,
+      backgroundColor: colors.border,
+    },
+    toggleDotActive: {
+      backgroundColor: colors.primary,
+    },
+    visibilityText: {
+      fontSize: 16,
+      color: colors.text,
+      fontWeight: '500',
+    },
+    toolbar: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingHorizontal: 20,
+      paddingVertical: 16,
+      backgroundColor: colors.card,
+      borderTopWidth: 1,
+      borderTopColor: colors.border,
+      gap: 20,
+    },
+    toolButton: {
+      padding: 8,
+    },
+    imageCount: {
+      marginLeft: 'auto',
+      fontSize: 14,
+      color: colors.secondary,
+      fontWeight: '500',
+    },
+  });

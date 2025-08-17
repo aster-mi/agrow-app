@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   View,
   Text,
@@ -12,6 +12,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Plus, CreditCard as Edit3, Grid3x3, Settings, ChevronRight } from 'lucide-react-native';
 import { router } from 'expo-router';
+import { useTheme } from '../../ThemeContext';
 
 const { width } = Dimensions.get('window');
 
@@ -57,6 +58,7 @@ const mockPlants: AgavePlant[] = [
 ];
 
 export default function ShelvesScreen() {
+  const { colors } = useTheme();
   const [editMode, setEditMode] = useState(false);
   const [shelves, setShelves] = useState<Shelf[]>([
     {
@@ -97,8 +99,8 @@ export default function ShelvesScreen() {
       {plant ? (
         <View style={styles.previewPlantContainer}>
           <Image source={{ uri: plant.image }} style={styles.previewPlantImage} />
-          <View style={styles.previewWaterIndicator}>
-            <View style={[styles.waterDot, { backgroundColor: '#16a34a' }]} />
+            <View style={styles.previewWaterIndicator}>
+            <View style={[styles.waterDot, { backgroundColor: colors.primary }]} />
           </View>
         </View>
       ) : (
@@ -118,7 +120,7 @@ export default function ShelvesScreen() {
         <View style={styles.shelfHeader}>
           <Text style={styles.shelfName}>{shelf.name}</Text>
           <View style={styles.shelfActions}>
-            <ChevronRight size={20} color="#6b7280" />
+            <ChevronRight size={20} color={colors.secondary} />
           </View>
         </View>
 
@@ -146,171 +148,173 @@ export default function ShelvesScreen() {
     </View>
   );
 
+  const styles = useMemo(
+    () =>
+      StyleSheet.create({
+        container: {
+          flex: 1,
+          backgroundColor: colors.background,
+        },
+        header: {
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          paddingHorizontal: 20,
+          paddingVertical: 16,
+          backgroundColor: colors.card,
+          borderBottomWidth: 1,
+          borderBottomColor: colors.border,
+        },
+        headerTitle: {
+          fontSize: 24,
+          fontWeight: '700',
+          color: colors.primary,
+        },
+        headerActions: {
+          flexDirection: 'row',
+          gap: 12,
+        },
+        headerButton: {
+          paddingVertical: 8,
+          paddingHorizontal: 8,
+        },
+        content: {
+          flex: 1,
+        },
+        shelfList: {
+          padding: 20,
+          gap: 24,
+        },
+        shelfContainer: {
+          marginBottom: 16,
+        },
+        shelfCard: {
+          backgroundColor: colors.card,
+          borderRadius: 16,
+          padding: 16,
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: 2 },
+          shadowOpacity: 0.1,
+          shadowRadius: 4,
+          elevation: 3,
+        },
+        shelfHeader: {
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: 16,
+        },
+        shelfName: {
+          fontSize: 18,
+          fontWeight: '600',
+          color: colors.text,
+        },
+        shelfActions: {
+          padding: 4,
+        },
+        previewGrid: {
+          marginBottom: 12,
+        },
+        previewRow: {
+          flexDirection: 'row',
+          gap: 8,
+          marginBottom: 8,
+        },
+        previewPlantCell: {
+          borderRadius: 8,
+          backgroundColor: colors.card,
+          borderWidth: 1,
+          borderColor: colors.border,
+        },
+        previewPlantContainer: {
+          flex: 1,
+          position: 'relative',
+        },
+        previewPlantImage: {
+          width: '100%',
+          height: '100%',
+          borderRadius: 12,
+          resizeMode: 'cover',
+        },
+        previewWaterIndicator: {
+          position: 'absolute',
+          top: 4,
+          right: 4,
+        },
+        previewEmptyCell: {
+          flex: 1,
+          justifyContent: 'center',
+          alignItems: 'center',
+        },
+        emptyDot: {
+          width: 12,
+          height: 12,
+          borderRadius: 6,
+          backgroundColor: colors.border,
+        },
+        shelfStats: {
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          paddingTop: 12,
+          borderTopWidth: 1,
+          borderTopColor: colors.border,
+        },
+        waterDot: {
+          width: 8,
+          height: 8,
+          borderRadius: 4,
+        },
+        statsText: {
+          fontSize: 12,
+          color: colors.secondary,
+        },
+        shelfSize: {
+          fontSize: 12,
+          color: colors.secondary,
+          fontWeight: '500',
+        },
+        addShelfButton: {
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: 8,
+          margin: 20,
+          padding: 16,
+          backgroundColor: colors.card,
+          borderRadius: 12,
+          borderWidth: 2,
+          borderColor: colors.border,
+          borderStyle: 'dashed',
+        },
+        addShelfText: {
+          fontSize: 16,
+          fontWeight: '600',
+          color: colors.primary,
+        },
+      }),
+    [colors]
+  );
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.headerTitle}>棚管理</Text>
         <View style={styles.headerActions}>
           <TouchableOpacity style={styles.headerButton}>
-            <Settings size={20} color="#16a34a" />
+            <Settings size={20} color={colors.primary} />
           </TouchableOpacity>
         </View>
       </View>
 
       <ScrollView style={styles.content}>
-        <View style={styles.shelfList}>
-          {shelves.map(renderShelf)}
-        </View>
+        <View style={styles.shelfList}>{shelves.map(renderShelf)}</View>
 
         <TouchableOpacity style={styles.addShelfButton}>
-          <Plus size={24} color="#16a34a" />
+          <Plus size={24} color={colors.primary} />
           <Text style={styles.addShelfText}>新しい棚を追加</Text>
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f8fafc',
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-    backgroundColor: '#ffffff',
-    borderBottomWidth: 1,
-    borderBottomColor: '#e5e7eb',
-  },
-  headerTitle: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: '#16a34a',
-  },
-  headerActions: {
-    flexDirection: 'row',
-    gap: 12,
-  },
-  headerButton: {
-    paddingVertical: 8,
-    paddingHorizontal: 8,
-  },
-  content: {
-    flex: 1,
-  },
-  shelfList: {
-    padding: 20,
-    gap: 24,
-  },
-  shelfContainer: {
-    marginBottom: 16,
-  },
-  shelfCard: {
-    backgroundColor: '#ffffff',
-    borderRadius: 16,
-    padding: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  shelfHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  shelfName: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#1f2937',
-  },
-  shelfActions: {
-    padding: 4,
-  },
-  previewGrid: {
-    marginBottom: 12,
-  },
-  previewRow: {
-    flexDirection: 'row',
-    gap: 8,
-    marginBottom: 8,
-  },
-  previewPlantCell: {
-    borderRadius: 8,
-    backgroundColor: '#f9fafb',
-    borderWidth: 1,
-    borderColor: '#e5e7eb',
-  },
-  previewPlantContainer: {
-    flex: 1,
-    position: 'relative',
-  },
-  previewPlantImage: {
-    width: '100%',
-    height: '100%',
-    borderRadius: 12,
-    resizeMode: 'cover',
-  },
-  previewWaterIndicator: {
-    position: 'absolute',
-    top: 4,
-    right: 4,
-  },
-  previewEmptyCell: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  emptyDot: {
-    width: 12,
-    height: 12,
-    borderRadius: 6,
-    backgroundColor: '#e5e7eb',
-  },
-  shelfStats: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingTop: 12,
-    borderTopWidth: 1,
-    borderTopColor: '#f1f5f9',
-  },
-  waterDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-  },
-  statsText: {
-    fontSize: 12,
-    color: '#6b7280',
-  },
-  shelfSize: {
-    fontSize: 12,
-    color: '#9ca3af',
-    fontWeight: '500',
-  },
-  addShelfButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-    margin: 20,
-    padding: 16,
-    backgroundColor: '#ffffff',
-    borderRadius: 12,
-    borderWidth: 2,
-    borderColor: '#dcfce7',
-    borderStyle: 'dashed',
-  },
-  addShelfText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#16a34a',
-  },
-});
