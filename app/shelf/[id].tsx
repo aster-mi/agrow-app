@@ -7,7 +7,6 @@ import {
   TouchableOpacity,
   Image,
   Dimensions,
-  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, router } from 'expo-router';
@@ -78,19 +77,7 @@ export default function ShelfDetailScreen() {
   const cellSize = (width - 60) / shelf.columns;
 
   const addPlant = (row: number, col: number) => {
-    Alert.alert(
-      '株を追加',
-      '新しい株を追加しますか？',
-      [
-        { text: 'キャンセル' },
-        { 
-          text: '追加', 
-          onPress: () => {
-            console.log('Add plant to position:', row, col);
-          }
-        },
-      ]
-    );
+    router.push(`/stock/new?shelf=${shelf.id}&row=${row}&col=${col}`);
   };
 
   const renderPlantCell = (plant: AgavePlant | null, row: number, col: number) => (
