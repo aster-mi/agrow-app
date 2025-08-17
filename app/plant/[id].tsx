@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   View,
   Text,
@@ -12,6 +12,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, router } from 'expo-router';
 import { ArrowLeft, CreditCard as Edit3, Share, Heart, MessageCircle, Calendar, Droplets, Tag, Eye, EyeOff, TreePine, MoveHorizontal as MoreHorizontal } from 'lucide-react-native';
+import { useTheme } from '../../ThemeContext';
 
 const { width } = Dimensions.get('window');
 
@@ -103,6 +104,7 @@ const mockPlant: AgavePlant = {
 
 export default function PlantDetailScreen() {
   const { id } = useLocalSearchParams();
+  const { colors, colorScheme } = useTheme();
   const [plant, setPlant] = useState(mockPlant);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
 
@@ -157,7 +159,7 @@ export default function PlantDetailScreen() {
     return (
       <View style={styles.relationshipsSection}>
         <View style={styles.sectionHeader}>
-          <TreePine size={18} color="#16a34a" />
+          <TreePine size={18} color={colors.primary} />
           <Text style={styles.sectionTitle}>血統関係</Text>
         </View>
         
@@ -182,6 +184,230 @@ export default function PlantDetailScreen() {
     );
   };
 
+  const styles = useMemo(
+    () =>
+      StyleSheet.create({
+        container: {
+          flex: 1,
+          backgroundColor: colors.background,
+        },
+        header: {
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          paddingHorizontal: 20,
+          paddingVertical: 16,
+          backgroundColor: colors.card,
+          borderBottomWidth: 1,
+          borderBottomColor: colors.border,
+        },
+        backButton: {
+          padding: 8,
+        },
+        headerActions: {
+          flexDirection: 'row',
+          gap: 8,
+        },
+        headerButton: {
+          padding: 8,
+        },
+        content: {
+          flex: 1,
+        },
+        mainImageContainer: {
+          position: 'relative',
+          height: 300,
+        },
+        mainImage: {
+          width: '100%',
+          height: '100%',
+          resizeMode: 'cover',
+        },
+        imageOverlay: {
+          position: 'absolute',
+          top: 16,
+          right: 16,
+        },
+        visibilityBadge: {
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: 4,
+          paddingHorizontal: 8,
+          paddingVertical: 4,
+          backgroundColor:
+            colorScheme === 'dark'
+              ? 'rgba(55, 65, 81, 0.9)'
+              : 'rgba(255, 255, 255, 0.9)',
+          borderRadius: 12,
+        },
+        visibilityText: {
+          fontSize: 12,
+          fontWeight: '600',
+          color: colors.primary,
+        },
+        visibilityTextPrivate: {
+          color: colors.secondary,
+        },
+        infoSection: {
+          backgroundColor: colors.card,
+          padding: 20,
+          borderBottomWidth: 1,
+          borderBottomColor: colors.border,
+        },
+        titleRow: {
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: 12,
+        },
+        plantName: {
+          fontSize: 24,
+          fontWeight: '700',
+          color: colors.text,
+          flex: 1,
+        },
+        editButton: {
+          padding: 8,
+          borderRadius: 8,
+          backgroundColor:
+            colorScheme === 'dark' ? '#064e3b' : '#f0fdf4',
+        },
+        statsRow: {
+          flexDirection: 'row',
+          gap: 20,
+          marginBottom: 16,
+        },
+        statItem: {
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: 4,
+        },
+        statText: {
+          fontSize: 14,
+          color: colors.secondary,
+          fontWeight: '500',
+        },
+        description: {
+          fontSize: 16,
+          lineHeight: 24,
+          color: colors.text,
+          marginBottom: 16,
+        },
+        tagsContainer: {
+          flexDirection: 'row',
+          flexWrap: 'wrap',
+          gap: 8,
+        },
+        tag: {
+          backgroundColor:
+            colorScheme === 'dark' ? '#064e3b' : '#dcfce7',
+          paddingHorizontal: 12,
+          paddingVertical: 6,
+          borderRadius: 16,
+        },
+        tagText: {
+          fontSize: 14,
+          color: colors.primary,
+          fontWeight: '500',
+        },
+        metadataSection: {
+          backgroundColor: colors.card,
+          padding: 20,
+          marginTop: 8,
+          borderBottomWidth: 1,
+          borderBottomColor: colors.border,
+        },
+        sectionHeader: {
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          marginBottom: 16,
+        },
+        sectionTitle: {
+          fontSize: 18,
+          fontWeight: '600',
+          color: colors.text,
+        },
+        metadataGrid: {
+          gap: 16,
+        },
+        metadataItem: {
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: 12,
+        },
+        metadataLabel: {
+          fontSize: 14,
+          color: colors.secondary,
+          marginBottom: 2,
+        },
+        metadataValue: {
+          fontSize: 16,
+          fontWeight: '500',
+          color: colors.text,
+        },
+        relationshipsSection: {
+          backgroundColor: colors.card,
+          padding: 20,
+          marginTop: 8,
+          borderBottomWidth: 1,
+          borderBottomColor: colors.border,
+        },
+        relationshipItem: {
+          flexDirection: 'row',
+          alignItems: 'center',
+          paddingVertical: 8,
+          gap: 8,
+        },
+        relationshipLabel: {
+          fontSize: 14,
+          fontWeight: '600',
+          color: colors.text,
+          marginBottom: 8,
+        },
+        relationshipName: {
+          fontSize: 14,
+          color: colors.primary,
+          fontWeight: '500',
+        },
+        photosSection: {
+          backgroundColor: colors.card,
+          padding: 20,
+          marginTop: 8,
+        },
+        addPhotoText: {
+          fontSize: 14,
+          color: colors.primary,
+          fontWeight: '600',
+        },
+        imageGrid: {
+          flexDirection: 'row',
+          flexWrap: 'wrap',
+          gap: 2,
+        },
+        imageGridItem: {
+          position: 'relative',
+        },
+        gridImage: {
+          width: '100%',
+          height: '100%',
+          resizeMode: 'cover',
+        },
+        imageMemoIndicator: {
+          position: 'absolute',
+          top: 4,
+          right: 4,
+          width: 20,
+          height: 20,
+          borderRadius: 10,
+          backgroundColor: 'rgba(0, 0, 0, 0.6)',
+          justifyContent: 'center',
+          alignItems: 'center',
+        },
+      }),
+    [colors, colorScheme]
+  );
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
@@ -189,14 +415,14 @@ export default function PlantDetailScreen() {
           style={styles.backButton}
           onPress={() => router.back()}
         >
-          <ArrowLeft size={24} color="#16a34a" />
+          <ArrowLeft size={24} color={colors.primary} />
         </TouchableOpacity>
         <View style={styles.headerActions}>
           <TouchableOpacity style={styles.headerButton} onPress={handleShare}>
-            <Share size={20} color="#16a34a" />
+            <Share size={20} color={colors.primary} />
           </TouchableOpacity>
           <TouchableOpacity style={styles.headerButton}>
-            <MoreHorizontal size={20} color="#16a34a" />
+            <MoreHorizontal size={20} color={colors.primary} />
           </TouchableOpacity>
         </View>
       </View>
@@ -211,9 +437,9 @@ export default function PlantDetailScreen() {
           <View style={styles.imageOverlay}>
             <View style={styles.visibilityBadge}>
               {plant.visibility === 'public' ? (
-                <Eye size={14} color="#16a34a" />
+                <Eye size={14} color={colors.primary} />
               ) : (
-                <EyeOff size={14} color="#6b7280" />
+                <EyeOff size={14} color={colors.secondary} />
               )}
               <Text style={[
                 styles.visibilityText,
@@ -230,7 +456,7 @@ export default function PlantDetailScreen() {
           <View style={styles.titleRow}>
             <Text style={styles.plantName}>{plant.name}</Text>
             <TouchableOpacity style={styles.editButton} onPress={handleEdit}>
-              <Edit3 size={18} color="#16a34a" />
+              <Edit3 size={18} color={colors.primary} />
             </TouchableOpacity>
           </View>
 
@@ -240,7 +466,7 @@ export default function PlantDetailScreen() {
               <Text style={styles.statText}>{plant.stats.likes}</Text>
             </TouchableOpacity>
             <View style={styles.statItem}>
-              <MessageCircle size={16} color="#6b7280" />
+              <MessageCircle size={16} color={colors.secondary} />
               <Text style={styles.statText}>{plant.stats.posts} 投稿</Text>
             </View>
           </View>
@@ -262,7 +488,7 @@ export default function PlantDetailScreen() {
           
           <View style={styles.metadataGrid}>
             <View style={styles.metadataItem}>
-              <Calendar size={16} color="#6b7280" />
+              <Calendar size={16} color={colors.secondary} />
               <View>
                 <Text style={styles.metadataLabel}>取得日</Text>
                 <Text style={styles.metadataValue}>{plant.metadata.acquisitionDate}</Text>
@@ -270,7 +496,7 @@ export default function PlantDetailScreen() {
             </View>
             
             <View style={styles.metadataItem}>
-              <Tag size={16} color="#6b7280" />
+              <Tag size={16} color={colors.secondary} />
               <View>
                 <Text style={styles.metadataLabel}>取得元</Text>
                 <Text style={styles.metadataValue}>{plant.metadata.acquisitionSource}</Text>
@@ -312,218 +538,3 @@ export default function PlantDetailScreen() {
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f8fafc',
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-    backgroundColor: '#ffffff',
-    borderBottomWidth: 1,
-    borderBottomColor: '#e5e7eb',
-  },
-  backButton: {
-    padding: 8,
-  },
-  headerActions: {
-    flexDirection: 'row',
-    gap: 8,
-  },
-  headerButton: {
-    padding: 8,
-  },
-  content: {
-    flex: 1,
-  },
-  mainImageContainer: {
-    position: 'relative',
-    height: 300,
-  },
-  mainImage: {
-    width: '100%',
-    height: '100%',
-    resizeMode: 'cover',
-  },
-  imageOverlay: {
-    position: 'absolute',
-    top: 16,
-    right: 16,
-  },
-  visibilityBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    backgroundColor: 'rgba(255, 255, 255, 0.9)',
-    borderRadius: 12,
-  },
-  visibilityText: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#16a34a',
-  },
-  visibilityTextPrivate: {
-    color: '#6b7280',
-  },
-  infoSection: {
-    backgroundColor: '#ffffff',
-    padding: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: '#f1f5f9',
-  },
-  titleRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  plantName: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: '#1f2937',
-    flex: 1,
-  },
-  editButton: {
-    padding: 8,
-    borderRadius: 8,
-    backgroundColor: '#f0fdf4',
-  },
-  statsRow: {
-    flexDirection: 'row',
-    gap: 20,
-    marginBottom: 16,
-  },
-  statItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-  },
-  statText: {
-    fontSize: 14,
-    color: '#6b7280',
-    fontWeight: '500',
-  },
-  description: {
-    fontSize: 16,
-    lineHeight: 24,
-    color: '#374151',
-    marginBottom: 16,
-  },
-  tagsContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-  },
-  tag: {
-    backgroundColor: '#dcfce7',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 16,
-  },
-  tagText: {
-    fontSize: 14,
-    color: '#15803d',
-    fontWeight: '500',
-  },
-  metadataSection: {
-    backgroundColor: '#ffffff',
-    padding: 20,
-    marginTop: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: '#f1f5f9',
-  },
-  sectionHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 16,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#1f2937',
-  },
-  metadataGrid: {
-    gap: 16,
-  },
-  metadataItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-  },
-  metadataLabel: {
-    fontSize: 14,
-    color: '#6b7280',
-    marginBottom: 2,
-  },
-  metadataValue: {
-    fontSize: 16,
-    fontWeight: '500',
-    color: '#374151',
-  },
-  relationshipsSection: {
-    backgroundColor: '#ffffff',
-    padding: 20,
-    marginTop: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: '#f1f5f9',
-  },
-  relationshipItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 8,
-    gap: 8,
-  },
-  relationshipLabel: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#374151',
-    marginBottom: 8,
-  },
-  relationshipName: {
-    fontSize: 14,
-    color: '#16a34a',
-    fontWeight: '500',
-  },
-  photosSection: {
-    backgroundColor: '#ffffff',
-    padding: 20,
-    marginTop: 8,
-  },
-  addPhotoText: {
-    fontSize: 14,
-    color: '#16a34a',
-    fontWeight: '600',
-  },
-  imageGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 2,
-  },
-  imageGridItem: {
-    position: 'relative',
-  },
-  gridImage: {
-    width: '100%',
-    height: '100%',
-    resizeMode: 'cover',
-  },
-  imageMemoIndicator: {
-    position: 'absolute',
-    top: 4,
-    right: 4,
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    backgroundColor: 'rgba(0, 0, 0, 0.6)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-});
