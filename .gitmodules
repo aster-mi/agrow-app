@@ -1,0 +1,3 @@
+[submodule "agrow-ui"]
+	path = agrow-ui
+	url = git@github.com:aster-mi/agrow-ui.git
