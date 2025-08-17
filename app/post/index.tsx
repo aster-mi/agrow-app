@@ -14,6 +14,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { Camera, Image as ImageIcon, X, Hash, MapPin, ArrowLeft } from 'lucide-react-native';
 import * as ImagePicker from 'expo-image-picker';
+import { addPost } from '../../db';
 
 const { width } = Dimensions.get('window');
 
@@ -87,11 +88,10 @@ export default function PostScreen() {
       `この内容で投稿しますか？\n\n公開設定: ${isPublic ? '公開' : '非公開'}`,
       [
         { text: 'キャンセル' },
-        { 
-          text: '投稿', 
-          onPress: () => {
-            console.log('Posting:', { content, images, tags, selectedAgave, isPublic });
-            // リセット
+        {
+          text: '投稿',
+          onPress: async () => {
+            await addPost(content, images.map((img) => img.uri));
             setContent('');
             setImages([]);
             setTags('');

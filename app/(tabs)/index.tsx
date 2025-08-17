@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   View,
   Text,
@@ -10,7 +10,8 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Heart, MessageCircle, Repeat2, Share, Search, Plus } from 'lucide-react-native';
-import { router } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
+import { fetchPosts, Post as DbPost } from '../../db';
 
 interface TimelinePost {
   id: string;
@@ -73,11 +74,39 @@ const mockPosts: TimelinePost[] = [
 ];
 
 export default function HomeScreen() {
-  const [posts, setPosts] = useState(mockPosts);
+  const [posts, setPosts] = useState<TimelinePost[]>([]);
   const [refreshing, setRefreshing] = useState(false);
+
+  const loadPosts = () => {
+    fetchPosts(0, 50, (dbPosts: DbPost[]) => {
+      const mapped: TimelinePost[] = dbPosts.map((p) => ({
+        id: `db-${p.id}`,
+        user: {
+          name: 'あなた',
+          avatar: 'https://i.pravatar.cc/100?img=1',
+          username: '@you',
+        },
+        content: p.text,
+        images: p.images,
+        timestamp: 'たった今',
+        likes: 0,
+        comments: 0,
+        reposts: 0,
+        isLiked: false,
+      }));
+      setPosts([...mapped, ...mockPosts]);
+    });
+  };
+
+  useFocusEffect(
+    useCallback(() => {
+      loadPosts();
+    }, [])
+  );
 
   const onRefresh = () => {
     setRefreshing(true);
+    loadPosts();
     setTimeout(() => setRefreshing(false), 1000);
   };
 
