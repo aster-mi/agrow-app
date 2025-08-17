@@ -2,7 +2,6 @@ import React, { useState, useMemo } from 'react';
 import {
   View,
   Text,
-  ScrollView,
   StyleSheet,
   TouchableOpacity,
   Image,
@@ -30,6 +29,11 @@ interface Shelf {
   columns: number;
   rows: number;
   plants: (AgavePlant | null)[][];
+}
+
+interface Cell {
+  id: string;
+  plant: AgavePlant | null;
 }
 
 const mockPlants: AgavePlant[] = [
@@ -74,17 +78,27 @@ export default function ShelfDetailScreen() {
   const { id } = useLocalSearchParams();
   const [editMode, setEditMode] = useState(false);
   const [shelf, setShelf] = useState(mockShelf);
-  const [data, setData] = useState<(AgavePlant | null)[]>(() => shelf.plants.flat());
+  const [data, setData] = useState<Cell[]>(() =>
+    shelf.plants.flatMap((row, r) =>
+      row.map((plant, c) => ({ id: `cell-${r}-${c}`, plant })),
+    ),
+  );
 
-  const cellSize = (width - 60) / shelf.columns;
+  const padding = 20;
+  const margin = 6;
+  const cellSize =
+    (width - padding * 2 - margin * 2 * shelf.columns) / shelf.columns;
 
   const addPlant = (row: number, col: number) => {
     router.push(`/stock/new?shelf=${shelf.id}&row=${row}&col=${col}`);
   };
 
-  const renderItem = ({ item, index, drag, isActive }: RenderItemParams<AgavePlant | null>) => {
-    const row = Math.floor(index / shelf.columns);
-    const col = index % shelf.columns;
+  const renderItem = ({ item, drag, isActive }: RenderItemParams<Cell>) => {
+    const [, rowStr, colStr] = item.id.split('-');
+    const row = Number(rowStr);
+    const col = Number(colStr);
+    const plant = item.plant;
+
     return (
       <TouchableOpacity
         style={[
@@ -92,19 +106,21 @@ export default function ShelfDetailScreen() {
           { width: cellSize, height: cellSize, opacity: isActive ? 0.9 : 1 },
         ]}
         onPress={() =>
-          item ? router.push(`/plant/${item.id}`) : addPlant(row, col)
+          plant ? router.push(`/plant/${plant.id}`) : addPlant(row, col)
         }
-        onLongPress={() => editMode && drag()}
+        onLongPress={() => editMode && plant && drag()}
         disabled={isActive}
       >
-        {item ? (
+        {plant ? (
           <View style={styles.plantContainer}>
-            <Image source={{ uri: item.image }} style={styles.plantImage} />
+            <Image source={{ uri: plant.image }} style={styles.plantImage} />
             <Text style={styles.plantName} numberOfLines={2}>
-              {item.name}
+              {plant.name}
             </Text>
             <View style={styles.waterIndicator}>
-              <View style={[styles.waterDot, { backgroundColor: colors.primary }]} />
+              <View
+                style={[styles.waterDot, { backgroundColor: colors.primary }]}
+              />
             </View>
           </View>
         ) : (
@@ -167,10 +183,6 @@ export default function ShelfDetailScreen() {
         editButtonTextActive: {
           color: '#ffffff',
         },
-        content: {
-          flex: 1,
-          padding: 20,
-        },
         shelfInfo: {
           backgroundColor: colors.card,
           padding: 16,
@@ -188,6 +200,7 @@ export default function ShelfDetailScreen() {
           color: colors.secondary,
         },
         shelfGrid: {
+          paddingHorizontal: 20,
           paddingBottom: 20,
         },
         plantCell: {
@@ -278,38 +291,34 @@ export default function ShelfDetailScreen() {
         </View>
       </View>
 
-      <ScrollView style={styles.content}>
-        <View style={styles.shelfInfo}>
-          <Text style={styles.shelfDescription}>
-            {shelf.rows}行 × {shelf.columns}列の棚
-          </Text>
-          <Text style={styles.plantCount}>
-            {shelf.plants.flat().filter(p => p !== null).length} / {shelf.plants.flat().length} 株配置済み
-          </Text>
-        </View>
-
-        <DraggableFlatList
-          data={data}
-          onDragEnd={({ data }) => {
-            setData(data);
-            const newPlants = Array.from(
-              { length: shelf.rows },
-              (_, rowIndex) =>
-                data.slice(
-                  rowIndex * shelf.columns,
-                  (rowIndex + 1) * shelf.columns,
-                ),
-            );
-            setShelf({ ...shelf, plants: newPlants });
-          }}
-          keyExtractor={(item, index) => (item ? item.id : `empty-${index}`)}
-          renderItem={renderItem}
-          numColumns={shelf.columns}
-          activationDistance={20}
-          containerStyle={styles.shelfGrid}
-          scrollEnabled={false}
-        />
-      </ScrollView>
+      <DraggableFlatList
+        data={data}
+        onDragEnd={({ data }) => {
+          setData(data);
+          const newPlants = Array.from({ length: shelf.rows }, (_, r) =>
+            data
+              .slice(r * shelf.columns, (r + 1) * shelf.columns)
+              .map(cell => cell.plant),
+          );
+          setShelf({ ...shelf, plants: newPlants });
+        }}
+        keyExtractor={item => item.id}
+        renderItem={renderItem}
+        numColumns={shelf.columns}
+        activationDistance={20}
+        contentContainerStyle={styles.shelfGrid}
+        scrollEnabled={false}
+        ListHeaderComponent={
+          <View style={styles.shelfInfo}>
+            <Text style={styles.shelfDescription}>
+              {shelf.rows}行 × {shelf.columns}列の棚
+            </Text>
+            <Text style={styles.plantCount}>
+              {shelf.plants.flat().filter(p => p !== null).length} / {shelf.plants.flat().length} 株配置済み
+            </Text>
+          </View>
+        }
+      />
 
       {editMode && (
         <View style={styles.editModeHint}>
