@@ -3,8 +3,11 @@ import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useFrameworkReady } from '../hooks/useFrameworkReady';
 import { initDb } from '../db';
+import { ThemeProvider, useTheme } from '../ThemeContext';
 
-export default function RootLayout() {
+function RootLayoutInner() {
+  const { colorScheme } = useTheme();
+
   useFrameworkReady();
 
   useEffect(() => {
@@ -18,7 +21,15 @@ export default function RootLayout() {
         <Stack.Screen name="auth" />
         <Stack.Screen name="+not-found" />
       </Stack>
-      <StatusBar style="auto" />
+      <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
     </>
+  );
+}
+
+export default function RootLayout() {
+  return (
+    <ThemeProvider>
+      <RootLayoutInner />
+    </ThemeProvider>
   );
 }

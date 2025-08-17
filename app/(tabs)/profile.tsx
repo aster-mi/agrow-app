@@ -9,7 +9,8 @@ import {
   Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Settings, CreditCard as Edit3, Users, Heart, MessageCircle, Share, Calendar, Tag, Bell } from 'lucide-react-native';
+import { Settings, CreditCard as Edit3, Users, Heart, MessageCircle, Share, Calendar, Tag, Bell, Sun, Moon } from 'lucide-react-native';
+import { useTheme, ThemeColors } from '../../ThemeContext';
 
 interface UserStats {
   plants: number;
@@ -66,6 +67,8 @@ export default function ProfileScreen() {
   const [activeTab, setActiveTab] = useState<'posts' | 'plants' | 'likes'>('posts');
   const [user] = useState(mockUser);
   const [posts] = useState(mockPosts);
+  const { colors, colorScheme, toggleColorScheme } = useTheme();
+  const styles = getStyles(colors);
 
   const handleEditProfile = () => {
     Alert.alert('編集', 'プロフィール編集画面に移動します');
@@ -120,11 +123,11 @@ export default function ProfileScreen() {
                 </View>
                 <View style={styles.postActions}>
                   <View style={styles.actionItem}>
-                    <Heart size={16} color="#6b7280" />
+                    <Heart size={16} color={colors.secondary} />
                     <Text style={styles.actionText}>{post.likes}</Text>
                   </View>
                   <View style={styles.actionItem}>
-                    <MessageCircle size={16} color="#6b7280" />
+                    <MessageCircle size={16} color={colors.secondary} />
                     <Text style={styles.actionText}>{post.comments}</Text>
                   </View>
                   <Text style={styles.postTime}>{post.timestamp}</Text>
@@ -155,14 +158,21 @@ export default function ProfileScreen() {
       <View style={styles.header}>
         <Text style={styles.headerTitle}>プロフィール</Text>
         <View style={styles.headerActions}>
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.headerButton}
             onPress={handleNotificationSettings}
           >
-            <Bell size={20} color="#16a34a" />
+            <Bell size={20} color={colors.primary} />
           </TouchableOpacity>
           <TouchableOpacity style={styles.headerButton}>
-            <Settings size={20} color="#16a34a" />
+            <Settings size={20} color={colors.primary} />
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.headerButton} onPress={toggleColorScheme}>
+            {colorScheme === 'dark' ? (
+              <Sun size={20} color={colors.primary} />
+            ) : (
+              <Moon size={20} color={colors.primary} />
+            )}
           </TouchableOpacity>
         </View>
       </View>
@@ -178,7 +188,7 @@ export default function ProfileScreen() {
             <Text style={styles.username}>{user.username}</Text>
             
             <View style={styles.joinInfo}>
-              <Calendar size={14} color="#6b7280" />
+              <Calendar size={14} color={colors.secondary} />
               <Text style={styles.joinDate}>参加日: {user.joinDate}</Text>
             </View>
             
@@ -190,14 +200,14 @@ export default function ProfileScreen() {
               style={styles.editButton}
               onPress={handleEditProfile}
             >
-              <Edit3 size={16} color="#16a34a" />
+              <Edit3 size={16} color={colors.primary} />
               <Text style={styles.editButtonText}>編集</Text>
             </TouchableOpacity>
             <TouchableOpacity 
               style={styles.shareButton}
               onPress={() => Alert.alert('共有', 'プロフィールを共有')}
             >
-              <Share size={16} color="#6b7280" />
+              <Share size={16} color={colors.secondary} />
             </TouchableOpacity>
           </View>
         </View>
@@ -218,9 +228,9 @@ export default function ProfileScreen() {
                   style={[styles.tabButton, activeTab === tab.key && styles.tabButtonActive]}
                   onPress={() => setActiveTab(tab.key as any)}
                 >
-                  <IconComponent 
-                    size={18} 
-                    color={activeTab === tab.key ? '#16a34a' : '#6b7280'} 
+                  <IconComponent
+                    size={18}
+                    color={activeTab === tab.key ? colors.primary : colors.secondary}
                   />
                   <Text 
                     style={[styles.tabText, activeTab === tab.key && styles.tabTextActive]}
@@ -239,220 +249,221 @@ export default function ProfileScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f8fafc',
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-    backgroundColor: '#ffffff',
-    borderBottomWidth: 1,
-    borderBottomColor: '#e5e7eb',
-  },
-  headerTitle: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: '#16a34a',
-  },
-  headerActions: {
-    flexDirection: 'row',
-    gap: 8,
-  },
-  headerButton: {
-    padding: 8,
-  },
-  content: {
-    flex: 1,
-  },
-  profileHeader: {
-    backgroundColor: '#ffffff',
-    padding: 20,
-  },
-  avatarContainer: {
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  avatar: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    borderWidth: 3,
-    borderColor: '#dcfce7',
-  },
-  profileInfo: {
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  displayName: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: '#1f2937',
-    marginBottom: 4,
-  },
-  username: {
-    fontSize: 16,
-    color: '#6b7280',
-    marginBottom: 8,
-  },
-  joinInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    marginBottom: 12,
-  },
-  joinDate: {
-    fontSize: 14,
-    color: '#6b7280',
-  },
-  bio: {
-    fontSize: 16,
-    lineHeight: 24,
-    color: '#374151',
-    textAlign: 'center',
-  },
-  profileActions: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    gap: 12,
-  },
-  editButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    backgroundColor: '#f0fdf4',
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: '#dcfce7',
-  },
-  editButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#16a34a',
-  },
-  shareButton: {
-    padding: 10,
-    borderRadius: 20,
-    backgroundColor: '#f3f4f6',
-  },
-  statsContainer: {
-    flexDirection: 'row',
-    backgroundColor: '#ffffff',
-    marginTop: 8,
-    paddingVertical: 20,
-  },
-  statItem: {
-    flex: 1,
-    alignItems: 'center',
-  },
-  statNumber: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#1f2937',
-    marginBottom: 4,
-  },
-  statLabel: {
-    fontSize: 14,
-    color: '#6b7280',
-  },
-  tabContainer: {
-    flex: 1,
-    marginTop: 8,
-  },
-  tabBar: {
-    flexDirection: 'row',
-    backgroundColor: '#ffffff',
-    borderBottomWidth: 1,
-    borderBottomColor: '#e5e7eb',
-  },
-  tabButton: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 6,
-    paddingVertical: 16,
-  },
-  tabButtonActive: {
-    borderBottomWidth: 2,
-    borderBottomColor: '#16a34a',
-  },
-  tabText: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: '#6b7280',
-  },
-  tabTextActive: {
-    color: '#16a34a',
-  },
-  tabContent: {
-    backgroundColor: '#ffffff',
-    minHeight: 200,
-  },
-  postCard: {
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#f1f5f9',
-  },
-  postContent: {
-    fontSize: 16,
-    lineHeight: 24,
-    color: '#374151',
-    marginBottom: 8,
-  },
-  postImage: {
-    width: '100%',
-    height: 200,
-    borderRadius: 12,
-    marginBottom: 8,
-    resizeMode: 'cover',
-  },
-  postTags: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 6,
-    marginBottom: 12,
-  },
-  tag: {
-    backgroundColor: '#dcfce7',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 12,
-  },
-  tagText: {
-    fontSize: 12,
-    color: '#15803d',
-    fontWeight: '500',
-  },
-  postActions: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 16,
-  },
-  actionItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-  },
-  actionText: {
-    fontSize: 14,
-    color: '#6b7280',
-  },
-  postTime: {
-    fontSize: 14,
-    color: '#9ca3af',
-    marginLeft: 'auto',
-  },
-  emptyText: {
-    fontSize: 16,
-    color: '#6b7280',
-    textAlign: 'center',
-    marginTop: 40,
-  },
-});
+const getStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    header: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      paddingHorizontal: 20,
+      paddingVertical: 16,
+      backgroundColor: colors.card,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+    },
+    headerTitle: {
+      fontSize: 24,
+      fontWeight: '700',
+      color: colors.primary,
+    },
+    headerActions: {
+      flexDirection: 'row',
+      gap: 8,
+    },
+    headerButton: {
+      padding: 8,
+    },
+    content: {
+      flex: 1,
+    },
+    profileHeader: {
+      backgroundColor: colors.card,
+      padding: 20,
+    },
+    avatarContainer: {
+      alignItems: 'center',
+      marginBottom: 16,
+    },
+    avatar: {
+      width: 80,
+      height: 80,
+      borderRadius: 40,
+      borderWidth: 3,
+      borderColor: '#dcfce7',
+    },
+    profileInfo: {
+      alignItems: 'center',
+      marginBottom: 16,
+    },
+    displayName: {
+      fontSize: 24,
+      fontWeight: '700',
+      color: colors.text,
+      marginBottom: 4,
+    },
+    username: {
+      fontSize: 16,
+      color: colors.secondary,
+      marginBottom: 8,
+    },
+    joinInfo: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 4,
+      marginBottom: 12,
+    },
+    joinDate: {
+      fontSize: 14,
+      color: colors.secondary,
+    },
+    bio: {
+      fontSize: 16,
+      lineHeight: 24,
+      color: colors.text,
+      textAlign: 'center',
+    },
+    profileActions: {
+      flexDirection: 'row',
+      justifyContent: 'center',
+      gap: 12,
+    },
+    editButton: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 8,
+      paddingHorizontal: 20,
+      paddingVertical: 10,
+      backgroundColor: '#f0fdf4',
+      borderRadius: 20,
+      borderWidth: 1,
+      borderColor: '#dcfce7',
+    },
+    editButtonText: {
+      fontSize: 16,
+      fontWeight: '600',
+      color: colors.primary,
+    },
+    shareButton: {
+      padding: 10,
+      borderRadius: 20,
+      backgroundColor: '#f3f4f6',
+    },
+    statsContainer: {
+      flexDirection: 'row',
+      backgroundColor: colors.card,
+      marginTop: 8,
+      paddingVertical: 20,
+    },
+    statItem: {
+      flex: 1,
+      alignItems: 'center',
+    },
+    statNumber: {
+      fontSize: 20,
+      fontWeight: '700',
+      color: colors.text,
+      marginBottom: 4,
+    },
+    statLabel: {
+      fontSize: 14,
+      color: colors.secondary,
+    },
+    tabContainer: {
+      flex: 1,
+      marginTop: 8,
+    },
+    tabBar: {
+      flexDirection: 'row',
+      backgroundColor: colors.card,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+    },
+    tabButton: {
+      flex: 1,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: 6,
+      paddingVertical: 16,
+    },
+    tabButtonActive: {
+      borderBottomWidth: 2,
+      borderBottomColor: colors.primary,
+    },
+    tabText: {
+      fontSize: 14,
+      fontWeight: '500',
+      color: colors.secondary,
+    },
+    tabTextActive: {
+      color: colors.primary,
+    },
+    tabContent: {
+      backgroundColor: colors.card,
+      minHeight: 200,
+    },
+    postCard: {
+      padding: 16,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+    },
+    postContent: {
+      fontSize: 16,
+      lineHeight: 24,
+      color: colors.text,
+      marginBottom: 8,
+    },
+    postImage: {
+      width: '100%',
+      height: 200,
+      borderRadius: 12,
+      marginBottom: 8,
+      resizeMode: 'cover',
+    },
+    postTags: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: 6,
+      marginBottom: 12,
+    },
+    tag: {
+      backgroundColor: '#dcfce7',
+      paddingHorizontal: 8,
+      paddingVertical: 4,
+      borderRadius: 12,
+    },
+    tagText: {
+      fontSize: 12,
+      color: '#15803d',
+      fontWeight: '500',
+    },
+    postActions: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 16,
+    },
+    actionItem: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 4,
+    },
+    actionText: {
+      fontSize: 14,
+      color: colors.secondary,
+    },
+    postTime: {
+      fontSize: 14,
+      color: colors.secondary,
+      marginLeft: 'auto',
+    },
+    emptyText: {
+      fontSize: 16,
+      color: colors.secondary,
+      textAlign: 'center',
+      marginTop: 40,
+    },
+  });
