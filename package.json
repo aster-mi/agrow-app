@@ -2,15 +2,15 @@
   "name": "agrow-app",
   "private": true,
   "version": "1.0.0",
-  "main": "index.ts",
+  "main": "expo-router/entry",
   "scripts": {
-    "start": "expo start --tunnel",
-    "android": "expo start --android",
-    "ios": "expo start --ios",
-    "web": "expo start --web",
+    "start": "EXPO_ROUTER_APP_ROOT=agrow-ui/app expo start --tunnel",
+    "android": "EXPO_ROUTER_APP_ROOT=agrow-ui/app expo start --android",
+    "ios": "EXPO_ROUTER_APP_ROOT=agrow-ui/app expo start --ios",
+    "web": "EXPO_ROUTER_APP_ROOT=agrow-ui/app expo start --web",
     "test": "jest"
   },
-   "dependencies": {
+  "dependencies": {
     "@react-native-async-storage/async-storage": "2.1.2",
     "@react-native-community/datetimepicker": "^8.3.0",
     "@react-native-community/netinfo": "^11.3.1",
@@ -30,7 +30,11 @@
     "react-native-reanimated": "~3.17.0",
     "react-native-safe-area-context": "~5.4.0",
     "react-native-screens": "~4.11.1",
-    "react-native-url-polyfill": "^2.0.0"
+    "react-native-url-polyfill": "^2.0.0",
+    "expo-router": "~5.0.2",
+    "@expo/vector-icons": "^14.1.0",
+    "@react-navigation/bottom-tabs": "^7.2.0",
+    "react-native-gesture-handler": "^2.28.0"
   },
   "overrides": {
     "react-native-reanimated": "~3.17.0"
