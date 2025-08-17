@@ -1,3 +1,5 @@
+import { enqueue } from './offlineQueue';
+
 export interface Stock {
   id: number;
   name: string;
@@ -47,4 +49,41 @@ export async function searchStocks(params: SearchParams): Promise<Stock[]> {
     throw new Error('Failed to search stocks');
   }
   return resp.json();
+}
+
+export interface NewStockParams {
+  name: string;
+  parentId?: number;
+  isPublic?: boolean;
+  tagIds?: number[];
+}
+
+export async function addStock(
+  params: NewStockParams
+): Promise<Stock | undefined> {
+  const op = {
+    id: `${Date.now()}`,
+    url: `${API_BASE_URL}/api/stocks`,
+    options: {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: params.name,
+        parent_id: params.parentId ?? null,
+        is_public: params.isPublic ?? true,
+        tag_ids: params.tagIds ?? [],
+      }),
+    },
+  } as const;
+
+  try {
+    const resp = await fetch(op.url, op.options);
+    if (!resp.ok) {
+      throw new Error('Failed to add stock');
+    }
+    return resp.json();
+  } catch {
+    await enqueue(op);
+    return undefined;
+  }
 }
