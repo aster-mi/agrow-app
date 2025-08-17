@@ -10,8 +10,9 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, router } from 'expo-router';
-import { ArrowLeft, Plus, CreditCard as Edit3, Settings, Grid3x3 } from 'lucide-react-native';
+import { ArrowLeft, Plus, CreditCard as Edit3, Grid3x3 } from 'lucide-react-native';
 import { useTheme } from '../../ThemeContext';
+import DraggableFlatList, { RenderItemParams } from 'react-native-draggable-flatlist';
 
 const { width } = Dimensions.get('window');
 
@@ -73,6 +74,7 @@ export default function ShelfDetailScreen() {
   const { id } = useLocalSearchParams();
   const [editMode, setEditMode] = useState(false);
   const [shelf, setShelf] = useState(mockShelf);
+  const [data, setData] = useState<(AgavePlant | null)[]>(() => shelf.plants.flat());
 
   const cellSize = (width - 60) / shelf.columns;
 
@@ -80,28 +82,39 @@ export default function ShelfDetailScreen() {
     router.push(`/stock/new?shelf=${shelf.id}&row=${row}&col=${col}`);
   };
 
-  const renderPlantCell = (plant: AgavePlant | null, row: number, col: number) => (
-    <TouchableOpacity
-      key={`${row}-${col}`}
-      style={[styles.plantCell, { width: cellSize, height: cellSize }]}
-      onPress={() => plant ? router.push(`/plant/${plant.id}`) : addPlant(row, col)}
-      onLongPress={() => editMode && plant && console.log('Move plant:', plant.id)}
-    >
-      {plant ? (
-        <View style={styles.plantContainer}>
-          <Image source={{ uri: plant.image }} style={styles.plantImage} />
-          <Text style={styles.plantName} numberOfLines={2}>{plant.name}</Text>
-          <View style={styles.waterIndicator}>
-            <View style={[styles.waterDot, { backgroundColor: colors.primary }]} />
+  const renderItem = ({ item, index, drag, isActive }: RenderItemParams<AgavePlant | null>) => {
+    const row = Math.floor(index / shelf.columns);
+    const col = index % shelf.columns;
+    return (
+      <TouchableOpacity
+        style={[
+          styles.plantCell,
+          { width: cellSize, height: cellSize, opacity: isActive ? 0.9 : 1 },
+        ]}
+        onPress={() =>
+          item ? router.push(`/plant/${item.id}`) : addPlant(row, col)
+        }
+        onLongPress={() => editMode && drag()}
+        disabled={isActive}
+      >
+        {item ? (
+          <View style={styles.plantContainer}>
+            <Image source={{ uri: item.image }} style={styles.plantImage} />
+            <Text style={styles.plantName} numberOfLines={2}>
+              {item.name}
+            </Text>
+            <View style={styles.waterIndicator}>
+              <View style={[styles.waterDot, { backgroundColor: colors.primary }]} />
+            </View>
           </View>
-        </View>
-      ) : (
-        <View style={styles.emptyCell}>
-          <Plus size={20} color={colors.secondary} />
-        </View>
-      )}
-    </TouchableOpacity>
-  );
+        ) : (
+          <View style={styles.emptyCell}>
+            <Plus size={20} color={colors.secondary} />
+          </View>
+        )}
+      </TouchableOpacity>
+    );
+  };
 
   const styles = useMemo(
     () =>
@@ -175,11 +188,7 @@ export default function ShelfDetailScreen() {
           color: colors.secondary,
         },
         shelfGrid: {
-          gap: 12,
-        },
-        shelfRow: {
-          flexDirection: 'row',
-          gap: 12,
+          paddingBottom: 20,
         },
         plantCell: {
           borderRadius: 12,
@@ -192,6 +201,7 @@ export default function ShelfDetailScreen() {
           shadowOpacity: 0.05,
           shadowRadius: 2,
           elevation: 1,
+          margin: 6,
         },
         plantContainer: {
           flex: 1,
@@ -278,15 +288,27 @@ export default function ShelfDetailScreen() {
           </Text>
         </View>
 
-        <View style={styles.shelfGrid}>
-          {shelf.plants.map((row, rowIndex) => (
-            <View key={rowIndex} style={styles.shelfRow}>
-              {row.map((plant, colIndex) => 
-                renderPlantCell(plant, rowIndex, colIndex)
-              )}
-            </View>
-          ))}
-        </View>
+        <DraggableFlatList
+          data={data}
+          onDragEnd={({ data }) => {
+            setData(data);
+            const newPlants = Array.from(
+              { length: shelf.rows },
+              (_, rowIndex) =>
+                data.slice(
+                  rowIndex * shelf.columns,
+                  (rowIndex + 1) * shelf.columns,
+                ),
+            );
+            setShelf({ ...shelf, plants: newPlants });
+          }}
+          keyExtractor={(item, index) => (item ? item.id : `empty-${index}`)}
+          renderItem={renderItem}
+          numColumns={shelf.columns}
+          activationDistance={20}
+          containerStyle={styles.shelfGrid}
+          scrollEnabled={false}
+        />
       </ScrollView>
 
       {editMode && (
