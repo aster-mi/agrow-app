@@ -25,6 +25,14 @@
     },
     "web": {
       "favicon": "https://placehold.co/48x48.png"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-font",
+      "expo-web-browser"
+    ],
+    "experiments": {
+      "typedRoutes": true
     }
   }
 }
