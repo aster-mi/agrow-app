@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import {
   View,
   Text,
@@ -13,6 +13,8 @@ import { Heart, MessageCircle, Repeat2, Share, Search, Plus } from 'lucide-react
 import { router, useFocusEffect } from 'expo-router';
 import { fetchPosts, Post as DbPost } from '../../db';
 import { useTheme, ThemeColors } from '../../ThemeContext';
+import { useAuth } from '../../context/AuthContext';
+import { getPosts } from '../../services/supabaseService';
 
 interface TimelinePost {
   id: string;
