@@ -175,10 +175,10 @@ export default function HomeScreen() {
     }, [])
   );
 
-  const onRefresh = () => {
+  const onRefresh = async () => {
     setRefreshing(true);
-    loadPosts();
-    setTimeout(() => setRefreshing(false), 1000);
+    await loadPosts();
+    setRefreshing(false);
   };
 
   const handleCreatePost = () => {
