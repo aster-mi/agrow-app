@@ -9,8 +9,9 @@ import {
   Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Settings, CreditCard as Edit3, Users, Heart, MessageCircle, Share, Calendar, Tag, Bell, Sun, Moon } from 'lucide-react-native';
+import { Settings, CreditCard as Edit3, Users, Heart, MessageCircle, Share, Calendar, Tag, Bell, Sun, Moon, LogOut } from 'lucide-react-native';
 import { useTheme, ThemeColors } from '../../ThemeContext';
+import { useAuth } from '../../context/AuthContext';
 
 interface UserStats {
   plants: number;
