@@ -30,7 +30,9 @@ function RootLayoutInner() {
 export default function RootLayout() {
   return (
     <ThemeProvider>
-      <RootLayoutInner />
+      <AuthProvider>
+        <RootLayoutInner />
+      </AuthProvider>
     </ThemeProvider>
   );
 }
