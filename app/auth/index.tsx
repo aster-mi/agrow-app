@@ -9,20 +9,22 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
+import { useAuth } from '../../context/AuthContext';
 
 export default function AuthScreen() {
   const [isLoading, setIsLoading] = useState(false);
+  const { signInWithGoogle, signInWithTwitter } = useAuth();
 
   const handleGoogleAuth = async () => {
     setIsLoading(true);
     try {
-      // Supabase Google認証の実装
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      await signInWithGoogle();
       Alert.alert('成功', 'Googleアカウントでログインしました', [
         { text: 'OK', onPress: () => router.replace('/(tabs)') }
       ]);
     } catch (error) {
-      Alert.alert('エラー', 'ログインに失敗しました');
+      Alert.alert('エラー', 'ログインに失敗しました。アプリの設定を確認してください。');
+      console.error('Google login error:', error);
     } finally {
       setIsLoading(false);
     }
@@ -31,13 +33,13 @@ export default function AuthScreen() {
   const handleXAuth = async () => {
     setIsLoading(true);
     try {
-      // Supabase X認証の実装
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      await signInWithTwitter();
       Alert.alert('成功', 'Xアカウントでログインしました', [
         { text: 'OK', onPress: () => router.replace('/(tabs)') }
       ]);
     } catch (error) {
-      Alert.alert('エラー', 'ログインに失敗しました');
+      Alert.alert('エラー', 'ログインに失敗しました。アプリの設定を確認してください。');
+      console.error('Twitter login error:', error);
     } finally {
       setIsLoading(false);
     }
