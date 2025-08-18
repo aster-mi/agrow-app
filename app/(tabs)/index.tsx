@@ -79,28 +79,94 @@ const mockPosts: TimelinePost[] = [
 export default function HomeScreen() {
   const [posts, setPosts] = useState<TimelinePost[]>([]);
   const [refreshing, setRefreshing] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const { colors } = useTheme();
+  const { user } = useAuth();
   const styles = getStyles(colors);
 
-  const loadPosts = () => {
-    fetchPosts(0, 50, (dbPosts: DbPost[]) => {
-      const mapped: TimelinePost[] = dbPosts.map((p) => ({
-        id: `db-${p.id}`,
+  const loadPosts = async () => {
+    setIsLoading(true);
+    try {
+      // Load from Supabase
+      const supabasePosts = await getPosts(0, 20);
+      const mappedSupabasePosts: TimelinePost[] = supabasePosts.map((p) => ({
+        id: `sb-${p.id}`,
         user: {
-          name: 'あなた',
-          avatar: 'https://i.pravatar.cc/100?img=1',
-          username: '@you',
+          name: p.profiles?.username || 'Unknown User',
+          avatar: p.profiles?.avatar_url || 'https://i.pravatar.cc/100?img=1',
+          username: `@${p.profiles?.username || 'unknown'}`,
         },
-        content: p.text,
-        images: p.images,
-        timestamp: 'たった今',
+        content: p.content || '',
+        images: [],
+        timestamp: formatRelativeTime(p.created_at),
         likes: 0,
         comments: 0,
         reposts: 0,
         isLiked: false,
       }));
-      setPosts([...mapped, ...mockPosts]);
-    });
+
+      // Load from local SQLite
+      fetchPosts(0, 20, (dbPosts: DbPost[]) => {
+        const mappedDbPosts: TimelinePost[] = dbPosts.map((p) => ({
+          id: `db-${p.id}`,
+          user: {
+            name: 'あなた',
+            avatar: user?.user_metadata?.avatar_url || 'https://i.pravatar.cc/100?img=1',
+            username: '@you',
+          },
+          content: p.text,
+          images: p.images,
+          timestamp: 'たった今',
+          likes: 0,
+          comments: 0,
+          reposts: 0,
+          isLiked: false,
+        }));
+        
+        // Combine and sort posts
+        const allPosts = [...mappedSupabasePosts, ...mappedDbPosts, ...mockPosts];
+        setPosts(allPosts);
+        setIsLoading(false);
+      });
+    } catch (error) {
+      console.error('Error loading posts:', error);
+      // Fallback to local data
+      fetchPosts(0, 20, (dbPosts: DbPost[]) => {
+        const mapped: TimelinePost[] = dbPosts.map((p) => ({
+          id: `db-${p.id}`,
+          user: {
+            name: 'あなた',
+            avatar: user?.user_metadata?.avatar_url || 'https://i.pravatar.cc/100?img=1',
+            username: '@you',
+          },
+          content: p.text,
+          images: p.images,
+          timestamp: 'たった今',
+          likes: 0,
+          comments: 0,
+          reposts: 0,
+          isLiked: false,
+        }));
+        setPosts([...mapped, ...mockPosts]);
+        setIsLoading(false);
+      });
+    }
+  };
+
+  const formatRelativeTime = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+    const diffDays = Math.floor(diffHours / 24);
+    
+    if (diffDays > 0) {
+      return `${diffDays}日前`;
+    } else if (diffHours > 0) {
+      return `${diffHours}時間前`;
+    } else {
+      return 'たった今';
+    }
   };
 
   useFocusEffect(
