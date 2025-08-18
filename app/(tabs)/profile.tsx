@@ -69,6 +69,7 @@ export default function ProfileScreen() {
   const [user] = useState(mockUser);
   const [posts] = useState(mockPosts);
   const { colors, colorScheme, toggleColorScheme } = useTheme();
+  const { signOut, user: authUser } = useAuth();
   const styles = getStyles(colors);
 
   const handleEditProfile = () => {
