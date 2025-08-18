@@ -198,6 +198,9 @@ export default function ProfileScreen() {
               <Moon size={20} color={colors.primary} />
             )}
           </TouchableOpacity>
+          <TouchableOpacity style={styles.headerButton} onPress={handleSignOut}>
+            <LogOut size={20} color="#dc2626" />
+          </TouchableOpacity>
         </View>
       </View>
 
