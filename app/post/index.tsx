@@ -214,12 +214,12 @@ export default function PostScreen() {
         </TouchableOpacity>
         <Text style={styles.headerTitle}>新規投稿</Text>
         <TouchableOpacity 
-          style={[styles.postButton, (!content.trim() && images.length === 0) && styles.postButtonDisabled]}
+          style={[styles.postButton, ((!content.trim() && images.length === 0) || uploading) && styles.postButtonDisabled]}
           onPress={handlePost}
-          disabled={!content.trim() && images.length === 0}
+          disabled={(!content.trim() && images.length === 0) || uploading}
         >
-          <Text style={[styles.postButtonText, (!content.trim() && images.length === 0) && styles.postButtonTextDisabled]}>
-            投稿
+          <Text style={[styles.postButtonText, ((!content.trim() && images.length === 0) || uploading) && styles.postButtonTextDisabled]}>
+            {uploading ? 'アップロード中...' : '投稿'}
           </Text>
         </TouchableOpacity>
       </View>
