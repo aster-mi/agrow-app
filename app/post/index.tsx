@@ -29,11 +29,13 @@ interface PostImage {
 
 export default function PostScreen() {
   const { colors } = useTheme();
+  const { user } = useAuth();
   const [content, setContent] = useState('');
   const [images, setImages] = useState<PostImage[]>([]);
   const [tags, setTags] = useState('');
   const [selectedAgave, setSelectedAgave] = useState<string | null>(null);
   const [isPublic, setIsPublic] = useState(true);
+  const [uploading, setUploading] = useState(false);
   const styles = useMemo(() => createStyles(colors), [colors]);
 
   const pickImage = async () => {
