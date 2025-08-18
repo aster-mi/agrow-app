@@ -85,9 +85,14 @@ export default function PostScreen() {
     setImages(images.filter(img => img.id !== id));
   };
 
-  const handlePost = () => {
+  const handlePost = async () => {
     if (!content.trim() && images.length === 0) {
       Alert.alert('エラー', '投稿内容または画像を追加してください');
+      return;
+    }
+
+    if (!user) {
+      Alert.alert('エラー', 'ログインしてください');
       return;
     }
 
@@ -99,14 +104,54 @@ export default function PostScreen() {
         {
           text: '投稿',
           onPress: async () => {
-            await addPost(content, images.map((img) => img.uri));
-            setContent('');
-            setImages([]);
-            setTags('');
-            setSelectedAgave(null);
-            Alert.alert('成功', '投稿が完了しました！', [
-              { text: 'OK', onPress: () => router.back() }
-            ]);
+            setUploading(true);
+            try {
+              // Upload images first
+              const uploadedImageUrls: string[] = [];
+              for (const image of images) {
+                try {
+                  const result = await uploadImage(image.uri, 'plant-images', user.id);
+                  uploadedImageUrls.push(result.url);
+                } catch (uploadError) {
+                  console.error('Error uploading image:', uploadError);
+                }
+              }
+
+              // Create content with tags
+              let finalContent = content;
+              if (tags.trim()) {
+                const tagArray = tags.split(' ').filter(tag => tag.trim());
+                finalContent += '\n\n' + tagArray.map(tag => `#${tag.trim()}`).join(' ');
+              }
+              if (selectedAgave) {
+                finalContent += `\n\n🌵 ${selectedAgave}`;
+              }
+
+              // Try to save to Supabase first
+              try {
+                await createPost(user.id, finalContent);
+              } catch (supabaseError) {
+                console.error('Supabase post creation failed:', supabaseError);
+              }
+
+              // Always save to local SQLite as backup
+              await addPost(finalContent, uploadedImageUrls);
+
+              // Reset form
+              setContent('');
+              setImages([]);
+              setTags('');
+              setSelectedAgave(null);
+              
+              Alert.alert('成功', '投稿が完了しました！', [
+                { text: 'OK', onPress: () => router.back() }
+              ]);
+            } catch (error) {
+              console.error('Error creating post:', error);
+              Alert.alert('エラー', '投稿に失敗しました');
+            } finally {
+              setUploading(false);
+            }
           }
         },
       ]
