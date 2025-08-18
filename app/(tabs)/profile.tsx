@@ -84,6 +84,28 @@ export default function ProfileScreen() {
     Alert.alert('通知設定', '通知設定画面に移動します');
   };
 
+  const handleSignOut = async () => {
+    Alert.alert(
+      'ログアウト',
+      'ログアウトしますか？',
+      [
+        { text: 'キャンセル' },
+        {
+          text: 'ログアウト',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await signOut();
+            } catch (error) {
+              console.error('Error signing out:', error);
+              Alert.alert('エラー', 'ログアウトに失敗しました');
+            }
+          }
+        }
+      ]
+    );
+  };
+
   const renderStats = () => (
     <View style={styles.statsContainer}>
       <TouchableOpacity style={styles.statItem}>
