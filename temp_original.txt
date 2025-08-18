@@ -1,0 +1,3 @@
+  const handleNotificationSettings = () => {
+    Alert.alert('通知設定', '通知設定画面に移動します');
+  };
