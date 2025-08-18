@@ -16,6 +16,9 @@ import { Camera, Image as ImageIcon, X, Hash, MapPin, ArrowLeft } from 'lucide-r
 import * as ImagePicker from 'expo-image-picker';
 import { addPost } from '../../db';
 import { useTheme } from '../../ThemeContext';
+import { useAuth } from '../../context/AuthContext';
+import { createPost } from '../../services/supabaseService';
+import { uploadImage } from '../../services/imageUploadService';
 
 const { width } = Dimensions.get('window');
 
